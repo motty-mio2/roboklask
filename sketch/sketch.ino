@@ -12,7 +12,7 @@ K_MUTEX_DEFINE(anim_mtx);
 
 // Animation playback state
 static const int MAX_FRAMES = 300;
-static uint32_t animation_buf[MAX_FRAMES][5];  // 4 words + duration (ms)
+static uint32_t animation_buf[MAX_FRAMES][5]; // 4 words + duration (ms)
 static int animation_frame_count = 0;
 static bool animation_running = false;
 static int animation_current_frame = 0;
@@ -37,7 +37,7 @@ void loop() { delay(1); }
 
 // --- Functions
 
-uint8_t* generate_matrix(float x, float y) {
+uint8_t *generate_matrix(float x, float y) {
   static uint8_t led[HEIGHT][WIDTH];
   memset(led, 0, sizeof(led));
 
@@ -46,7 +46,7 @@ uint8_t* generate_matrix(float x, float y) {
 
   led[yy][xx] = 1;
 
-  return (uint8_t*)led;
+  return (uint8_t *)led;
 }
 
 // --- Bridge providers --------------------------------------------------------
