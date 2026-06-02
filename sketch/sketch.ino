@@ -33,12 +33,12 @@ void setup() {
   Monitor.begin();
 }
 
-void loop() { sleep(1); }
+void loop() { delay(1); }
 
 // --- Functions
 
-uint8_t* generate_matrix(float x, float y) {
-  static uint8_t led[104] = {0};
+uint8_t[] generate_matrix(float x, float y) {
+  uint8_t led[104] = {0};
 
   float xx = int(min(max(y, -1.0), 1.0) * HALF_WIDTH + HALF_WIDTH);
   float yy = int(min(max(x, 0.0), 1.0) * HEIGHT);
