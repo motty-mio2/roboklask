@@ -1,5 +1,8 @@
 [tools]
 ruff = "latest"
 
+[tasks.lint]
+run = "ruff check"
+
 [tasks.format]
-run = "ruff format"
+run = ["ruff format", "ruff check --fix"]

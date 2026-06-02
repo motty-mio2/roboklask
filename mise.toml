@@ -15,5 +15,8 @@ run = "tombi format"
 [tasks.format]
 depends = ["//*:format", "toml_format"]
 
+[tasks.lint]
+depends = ["//*:lint", "toml_lint"]
+
 [tools]
 tombi = "latest"
