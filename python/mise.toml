@@ -1,0 +1,5 @@
+[tools]
+ruff = "latest"
+
+[tasks.format]
+run = "ruff format"

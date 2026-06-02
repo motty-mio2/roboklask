@@ -1,0 +1,5 @@
+[tools]
+clang-format = "latest"
+
+[tasks.format]
+run = "clang-format -i pinout.h sketch.ino"

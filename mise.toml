@@ -1,0 +1,19 @@
+experimental_monorepo_root = true
+
+[monorepo]
+config_roots = ["sketch", "python"]
+
+[settings]
+minimum_release_age = "3d"
+
+[tasks.toml_lint]
+run = "toml lint"
+
+[tasks.toml_format]
+run = "tombi format"
+
+[tasks.format]
+depends = ["//*:format", "toml_format"]
+
+[tools]
+tombi = "latest"
