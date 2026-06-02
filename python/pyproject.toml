@@ -11,9 +11,28 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+  "poethepoet>=0.46.0",
   "pyrefly>=1.0.0",
   "ruff>=0.15.15",
 ]
+
+[tool.poe.tasks]
+format = [
+  { cmd = "ruff format" },
+  { cmd = "ruff check --fix" },
+]
+lint = [
+  { cmd = "ruff check" },
+  { cmd = "pyrefly check" },
+]
+
+[tool.poe.tasks.export]
+cmd = """
+uv export \
+--no-hashes --no-dev \
+--prune arduino-app-bricks \
+--format requirements.txt --output-file requirements.txt \
+"""
 
 [tool.pyrefly]
 preset = "strict"

@@ -34,5 +34,5 @@ jobs:
 
       - name: Verify requirements.txt is in sync
         run: |
-          mise run export
+          uv run poe export
           git diff --exit-code requirements.txt
