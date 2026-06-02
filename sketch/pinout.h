@@ -1,4 +1,4 @@
-constexpr uint8_t M0 =              0;
+constexpr uint8_t M0 = 0;
 constexpr uint8_t M1 = 1;
 constexpr uint8_t M2 = 2;
 constexpr uint8_t nEN = 3;
