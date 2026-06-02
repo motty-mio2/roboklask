@@ -7,7 +7,11 @@ print("Hello world!")
 
 
 def loop() -> None:
-    Bridge.call("xy", random.random(), random.random())
+    x = random.random()
+    y = random.random()
+    
+    print(f"send {x=} {y=}")
+    Bridge.call("xy", x, y)
 
     time.sleep(1)
 

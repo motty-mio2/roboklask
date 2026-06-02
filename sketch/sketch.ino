@@ -40,6 +40,8 @@ void setup() {
   Bridge.begin();
   Bridge.provide("draw", draw);
   Bridge.provide("xy", xy);
+
+  Monitor.begin();
 }
 
 void loop() {
@@ -58,11 +60,11 @@ void draw(std::vector<uint8_t> frame) {
 }
 
 void xy(float x, float y) {
-  Serial.print("Setting pixel at (");
-  Serial.print(x);
-  Serial.print(", ");
-  Serial.print(y);
-  Serial.println(") to max brightness");
+  Monitor.print("Setting pixel at (");
+  Monitor.print(x);
+  Monitor.print(", ");
+  Monitor.print(y);
+  Monitor.println(") to max brightness");
 }
 
 // --- Animation engine --------------------------------------------------------
