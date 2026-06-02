@@ -9,7 +9,7 @@ print("Hello world!")
 def loop() -> None:
     x = random.random()
     y = random.random()
-    
+
     print(f"send {x=} {y=}")
     Bridge.call("xy", x, y)
 
