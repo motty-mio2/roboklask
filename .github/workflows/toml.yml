@@ -1,0 +1,30 @@
+name: TOML
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**/*.toml'
+      - '.github/workflows/toml.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**/*.toml'
+      - '.github/workflows/toml.yml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+        with:
+          install: true
+          cache: true
+
+      - name: Run TOML lint
+        run: mise run toml_lint
+
+      - name: Run TOML format check
+        run: mise run toml_format -- --check

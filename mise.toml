@@ -19,5 +19,8 @@ depends = ["//*:format", "toml_format"]
 [tasks.lint]
 depends = ["//*:lint", "toml_lint"]
 
+[tasks.compile]
+depends = ["sketch:compile"]
+
 [tools]
 tombi = "latest"

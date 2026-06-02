@@ -3,3 +3,6 @@ clang-format = "latest"
 
 [tasks.format]
 run = "clang-format -i pinout.h sketch.ino"
+
+[tasks.compile]
+run = "arduino-cli compile --fqbn arduino:zephyr:unoq ."

@@ -1,0 +1,42 @@
+name: Sketch
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'sketch/**'
+      - '.github/workflows/sketch.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'sketch/**'
+      - '.github/workflows/sketch.yml'
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run clang-format
+        uses: xaverh/clang-format-lint-action@v2
+        with:
+          source: 'sketch'
+          extensions: 'h,ino'
+          clangFormatVersion: 18
+
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install Platform
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install arduino:zephyr
+
+      - name: Compile Sketch
+        run: arduino-cli compile --fqbn arduino:zephyr:unoq .
+        working-directory: sketch

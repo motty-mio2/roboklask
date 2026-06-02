@@ -1,0 +1,42 @@
+name: Python
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'python/**'
+      - '.github/workflows/python.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'python/**'
+      - '.github/workflows/python.yml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+        with:
+          install: true
+          cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+        working-directory: python
+
+      - name: Run lint
+        run: mise run lint
+        working-directory: python
+
+      - name: Check formatting
+        run: uv run ruff format --check
+        working-directory: python
+
+      - name: Verify requirements.txt is in sync
+        run: |
+          mise run export
+          git diff --exit-code requirements.txt
+        working-directory: python
