@@ -5,7 +5,7 @@ constexpr uint8_t nEN = 3;
 constexpr uint8_t MY_STEP = 4;
 constexpr uint8_t MY_DIR = 5;
 constexpr uint8_t MX_STEP = 8;
-constexpr uint8_t MY_DIR = 9;
+constexpr uint8_t MX_DIR = 9;
 constexpr uint8_t VEN = 10;
 
 constexpr uint8_t SW_A = 12;
