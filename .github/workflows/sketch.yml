@@ -22,13 +22,20 @@ jobs:
           working_directory: sketch
       - name: Run clang-format
         run: |
-          mise format
+          mise lint
         working-directory: sketch
   compile:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
+      - name: Cache Arduino Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.arduino15
+          key: arduino-dependencies-${{ hashFiles('sketch/**') }}
+          restore-keys: |
+            arduino-dependencies-
+            arduino-
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v2
 
