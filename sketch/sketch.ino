@@ -37,26 +37,17 @@ void loop() { delay(1); }
 
 // --- Functions
 
-uint8_t *generate_matrix(float x, float y) {
-  static uint8_t led[HEIGHT][WIDTH];
-  memset(led, 0, sizeof(led));
+uint8_t[] generate_matrix(float x, float y) {
+  uint8_t led[104] = {0};
 
-  int xx = int(min(max(y, -1.0f), 1.0f) * HALF_WIDTH + HALF_WIDTH);
-  int yy = int(min(max(x, 0.0f), 1.0f) * (HEIGHT - 1));
+  float xx = int(min(max(y, -1.0), 1.0) * HALF_WIDTH + HALF_WIDTH);
+  float yy = int(min(max(x, 0.0), 1.0) * HEIGHT);
 
-  led[yy][xx] = 1;
+  led[xx + yy * WIDTH] = 1;
 
-  return (uint8_t *)led;
+  return led;
 }
 
 // --- Bridge providers --------------------------------------------------------
 
-void xy(float x, float y) {
-  Monitor.print("Setting pixel at (");
-  Monitor.print(x);
-  Monitor.print(", ");
-  Monitor.print(y);
-  Monitor.println(") to max brightness");
-
-  matrix.draw(generate_matrix(x, y));
-}
+void xy(float x, float y) { matrix.draw(generate_matrix(x, y)); }

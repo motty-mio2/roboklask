@@ -7,14 +7,12 @@ print("Hello world!")
 
 
 def loop() -> None:
-    x = random.uniform(0, 1)
-    y = random.uniform(-1, 1)
+    x = random.random()
+    y = random.random()
 
-    print(f"send {x=} {y=}")
     Bridge.call("xy", x, y)
 
-    time.sleep(0.01)
+    time.sleep(1)
 
 
-# See: https://docs.arduino.cc/software/app-lab/tutorials/getting-started/#app-run
 App.run(user_loop=loop)

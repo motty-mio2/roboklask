@@ -4,6 +4,7 @@ experimental_monorepo_root = true
 config_roots = ["sketch", "python"]
 
 [settings]
+experimental = true
 minimum_release_age = "3d"
 
 [tasks.toml_lint]
