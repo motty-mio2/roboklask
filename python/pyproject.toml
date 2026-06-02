@@ -1,5 +1,28 @@
+[project]
+name = "python"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "arduino-app-bricks",
+  "onnxruntime>=1.26.0",
+]
+
+[dependency-groups]
+dev = [
+  "pyrefly>=1.0.0",
+  "ruff>=0.15.15",
+]
+
+[tool.pyrefly]
+preset = "strict"
+
 [tool.ruff]
 target-version = "py313"
 
 [tool.ruff.lint]
 extend-select = ["E", "F", "W", "I", "B"]
+
+[tool.uv.sources]
+arduino-app-bricks = { git = "https://github.com/arduino/app-bricks-py", tag = "release/0.10.1" }

@@ -1,8 +1,22 @@
 [tools]
-ruff = "latest"
+uv = "latest"
+
+[tasks.export]
+run = """
+uv export \
+--no-hashes --no-dev \
+--prune arduino-app-bricks \
+--format requirements.txt --output-file requirements.txt \
+"""
 
 [tasks.lint]
-run = "ruff check"
+run = [
+  "uv run ruff check",
+  "uv run pyrefly check",
+]
 
 [tasks.format]
-run = ["ruff format", "ruff check --fix"]
+run = [
+  "uv run ruff format",
+  "uv run ruff check --fix",
+]
