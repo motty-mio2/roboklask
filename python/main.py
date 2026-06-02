@@ -1,14 +1,15 @@
+import random
 import time
 
-from arduino.app_utils import App
+from arduino.app_utils import App, Bridge
 
 print("Hello world!")
 
 
-def loop():
-    """This function is called repeatedly by the App framework."""
-    # You can replace this with any code you want your App to run repeatedly.
-    time.sleep(10)
+def loop() -> None:
+    Bridge.call("xy", random.random(), random.random())
+
+    time.sleep(1)
 
 
 # See: https://docs.arduino.cc/software/app-lab/tutorials/getting-started/#app-run
