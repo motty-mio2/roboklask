@@ -8,7 +8,7 @@ experimental = true
 minimum_release_age = "3d"
 
 [tasks.toml_lint]
-run = "toml lint"
+run = "tombi lint"
 
 [tasks.toml_format]
 run = "tombi format"
