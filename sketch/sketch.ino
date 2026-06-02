@@ -37,15 +37,16 @@ void loop() { delay(1); }
 
 // --- Functions
 
-uint8_t[] generate_matrix(float x, float y) {
-  uint8_t led[104] = {0};
+uint8_t* generate_matrix(float x, float y) {
+  static uint8_t led[HEIGHT][WIDTH];
+  memset(led, 0, sizeof(led));
 
-  float xx = int(min(max(y, -1.0), 1.0) * HALF_WIDTH + HALF_WIDTH);
-  float yy = int(min(max(x, 0.0), 1.0) * HEIGHT);
+  int xx = int(min(max(y, -1.0f), 1.0f) * HALF_WIDTH + HALF_WIDTH);
+  int yy = int(min(max(x, 0.0f), 1.0f) * (HEIGHT - 1));
 
-  led[xx + yy * WIDTH] = 1;
+  led[yy][xx] = 1;
 
-  return led;
+  return (uint8_t*)led;
 }
 
 // --- Bridge providers --------------------------------------------------------
