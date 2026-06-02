@@ -2,33 +2,42 @@ name: Sketch
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'sketch/**'
-      - '.github/workflows/sketch.yml'
+      - "sketch/**"
+      - ".github/workflows/sketch.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'sketch/**'
-      - '.github/workflows/sketch.yml'
+      - "sketch/**"
+      - ".github/workflows/sketch.yml"
 
 jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Run clang-format
-        uses: xaverh/clang-format-lint-action@v2
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
         with:
-          source: 'sketch'
-          extensions: 'h,ino'
-          clangFormatVersion: 18
-
+          working_directory: sketch
+      - name: Run clang-format
+        run: |
+          mise lint
+        working-directory: sketch
   compile:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@v6
+      - name: Cache Arduino Dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.arduino15
+            ~/Arduino
+          key: arduino-dependencies-${{ hashFiles('sketch/**') }}
+          restore-keys: |
+            arduino-dependencies-
+            arduino-
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v2
 

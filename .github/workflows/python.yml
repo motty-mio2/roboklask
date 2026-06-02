@@ -2,41 +2,37 @@ name: Python
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'python/**'
-      - '.github/workflows/python.yml'
+      - "python/**"
+      - ".github/workflows/python.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'python/**'
-      - '.github/workflows/python.yml'
+      - "python/**"
+      - ".github/workflows/python.yml"
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: jdx/mise-action@v2
-        with:
-          install: true
-          cache: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
-      - name: Install dependencies
-        run: uv sync --all-groups
-        working-directory: python
-
+      - name: Run Type Checker
+        run: uv run pyrefly check
       - name: Run lint
-        run: mise run lint
-        working-directory: python
+        run: uv run ruff check
 
-      - name: Check formatting
+      - name: Run Formatter
         run: uv run ruff format --check
-        working-directory: python
 
       - name: Verify requirements.txt is in sync
         run: |
-          mise run export
+          uv run poe export
           git diff --exit-code requirements.txt
-        working-directory: python
