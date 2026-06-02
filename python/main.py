@@ -7,8 +7,8 @@ print("Hello world!")
 
 
 def loop() -> None:
-    x = random.random()
-    y = random.random()
+    x = random.uniform(0, 1)
+    y = random.uniform(-1, 1)
 
     print(f"send {x=} {y=}")
     Bridge.call("xy", x, y)
