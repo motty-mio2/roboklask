@@ -1,7 +1,6 @@
 [tools]
 clang-format = "latest"
 
-
 [tasks.lint]
 run = """
 clang-format \
