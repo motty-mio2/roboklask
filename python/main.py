@@ -13,7 +13,7 @@ def loop() -> None:
     print(f"send {x=} {y=}")
     Bridge.call("xy", x, y)
 
-    time.sleep(1)
+    time.sleep(0.01)
 
 
 # See: https://docs.arduino.cc/software/app-lab/tutorials/getting-started/#app-run
