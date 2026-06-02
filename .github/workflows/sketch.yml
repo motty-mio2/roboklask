@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Cache Arduino Dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.arduino15
           key: arduino-dependencies-${{ hashFiles('sketch/**') }}
