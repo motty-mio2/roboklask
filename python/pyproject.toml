@@ -18,7 +18,6 @@ dev = [
   "mypy>=2.1.0",
   "opencv-stubs[opencv-contrib]>=0.1.3",
   "poethepoet>=0.46.0",
-  "pyrefly>=1.0.0",
   "ruff>=0.15.15",
   "types-pyserial>=3.5.0.20260519",
 ]
@@ -53,7 +52,6 @@ lint = [
 ]
 check = [
   { cmd = "mypy src" },
-  { cmd = "pyrefly check" },
 ]
 
 [tool.poe.tasks.export]
@@ -63,9 +61,6 @@ uv export \
 --prune arduino-app-bricks \
 --format requirements.txt --output-file requirements.txt \
 """
-
-[tool.pyrefly]
-preset = "strict"
 
 [tool.ruff]
 target-version = "py313"
