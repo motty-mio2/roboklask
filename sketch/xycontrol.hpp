@@ -13,19 +13,17 @@ struct Position {
 };
 
 class XYControl {
- private:
+private:
   AccelStepper stepper1;
   AccelStepper stepper2;
   int sw_x;
   int sw_y;
 
- public:
+public:
   XYControl(const int m1_step, const int m1_dir, const int m2_step,
             const int m2_dir, const int sw_x, const int sw_y)
       : stepper1(AccelStepper(1, m1_step, m1_dir)),
-        stepper2(AccelStepper(1, m2_step, m2_dir)),
-        sw_x(sw_x),
-        sw_y(sw_y) {
+        stepper2(AccelStepper(1, m2_step, m2_dir)), sw_x(sw_x), sw_y(sw_y) {
     stepper1.setMaxSpeed(STEP * 3 * resolution);
     stepper1.setAcceleration(STEP * 3 * resolution);
     stepper2.setMaxSpeed(STEP * 3 * resolution);
@@ -46,8 +44,8 @@ class XYControl {
     while (digitalRead(sw_x) == LOW) {
       if (stepper1.distanceToGo() == 0 && stepper2.distanceToGo() == 0) {
         // 配線反転により、これが物理的な左右リセット方向になります
-        stepper1.move(+HOMING_CHUNK);  // (-)
-        stepper2.move(-HOMING_CHUNK);  // (+)
+        stepper1.move(+HOMING_CHUNK); // (-)
+        stepper2.move(-HOMING_CHUNK); // (+)
       }
       stepper1.run();
       stepper2.run();
@@ -70,8 +68,8 @@ class XYControl {
     while (digitalRead(sw_y) == LOW) {
       if (stepper1.distanceToGo() == 0 && stepper2.distanceToGo() == 0) {
         // 配線反転により、これが物理的な前後リセット方向になります
-        stepper1.move(HOMING_CHUNK);  // (-)
-        stepper2.move(HOMING_CHUNK);  // (-)
+        stepper1.move(HOMING_CHUNK); // (-)
+        stepper2.move(HOMING_CHUNK); // (-)
       }
       stepper1.run();
       stepper2.run();
@@ -102,7 +100,7 @@ class XYControl {
     stepper2.setAcceleration(STEP * 5 * resolution);
   }
 
-  void move(const Position& pos) {
+  void move(const Position &pos) {
     // 1. 万が一範囲外の数値が来ても盤面から飛び出さないように 0.0 〜 1.0
     // にクリップする
     float clipped_x = constrain(pos.x, 0.0f, 1.0f);
@@ -128,7 +126,7 @@ class XYControl {
     }
   }
 
-  void getCurrentXY(Position& pos) {
+  void getCurrentXY(Position &pos) {
     long s1 = stepper1.currentPosition();
     long s2 = stepper2.currentPosition();
     // H-bot逆変換:
@@ -152,4 +150,4 @@ class XYControl {
   }
 };
 
-#endif  // XYCONTROL_HPP
+#endif // XYCONTROL_HPP
