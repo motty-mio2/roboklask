@@ -7,10 +7,9 @@ from arduino.app_utils import App, Bridge
 ui = WebUI()
 
 
-def api_xy(data: dict) -> dict[str, Any]:
+def api_xy(data: dict[str, Any]) -> dict[str, Any]:
     """Handle the XY update request from WebUI."""
     try:
-
         x = float(data.get("x", 0.5))
         y = float(data.get("y", 0.0))
 
@@ -28,7 +27,6 @@ def api_xy(data: dict) -> dict[str, Any]:
 # Register the API endpoint
 # Framework likely prepends /api automatically
 ui.expose_api("POST", "/xy", api_xy)
-
 
 
 App.run()
