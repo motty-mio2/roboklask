@@ -7,11 +7,11 @@
 #include "motor_config.h"
 
 class XYControl {
-private:
+ private:
   AccelStepper stepper1;
   AccelStepper stepper2;
 
-public:
+ public:
   XYControl(const int m1_step, const int m1_dir, const int m2_step,
             const int m2_dir)
       : stepper1(AccelStepper(1, m1_step, m1_dir)),
@@ -36,8 +36,8 @@ public:
     while (digitalRead(sw_x) == LOW) {
       if (stepper1.distanceToGo() == 0 && stepper2.distanceToGo() == 0) {
         // 配線反転により、これが物理的な左右リセット方向になります
-        stepper1.move(+HOMING_CHUNK); // (-)
-        stepper2.move(-HOMING_CHUNK); // (+)
+        stepper1.move(+HOMING_CHUNK);  // (-)
+        stepper2.move(-HOMING_CHUNK);  // (+)
       }
       stepper1.run();
       stepper2.run();
@@ -60,8 +60,8 @@ public:
     while (digitalRead(sw_y) == LOW) {
       if (stepper1.distanceToGo() == 0 && stepper2.distanceToGo() == 0) {
         // 配線反転により、これが物理的な前後リセット方向になります
-        stepper1.move(HOMING_CHUNK); // (-)
-        stepper2.move(HOMING_CHUNK); // (-)
+        stepper1.move(HOMING_CHUNK);  // (-)
+        stepper2.move(HOMING_CHUNK);  // (-)
       }
       stepper1.run();
       stepper2.run();
@@ -85,38 +85,12 @@ public:
     stepper2.setCurrentPosition(0);
     delay(500);
 
-    // ==========================================
-    // STEP 3: 確定した(0,0)から盤面の中央へ絶対座標で移動
-    // ==========================================
     // 本番用の設定に引き上げる（脱調防止のため、速度・加速度をマイルドに設定）
     stepper1.setMaxSpeed(STEP * 5 * resolution);
     stepper2.setMaxSpeed(STEP * 5 * resolution);
     stepper1.setAcceleration(STEP * 5 * resolution);
     stepper2.setAcceleration(STEP * 5 * resolution);
-
-    // 原点(0,0)から、普通にプラスの絶対座標へ向かって moveTo します。
-    long center_x = XSTEP / 2;
-    long center_y = YSTEP / 2;
-
-    stepper1.moveTo((center_x + center_y) * resolution);
-    stepper2.moveTo((-center_x + center_y) * resolution);
-
-    // stepper1.moveTo((center_x)*resolution);
-    // stepper2.moveTo((-center_x) * resolution);
-
-    while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
-      // 中央移動中に万が一再度リミットに当たったら即緊急停止
-      // if (digitalRead(SW_X) == HIGH || digitalRead(SW_Y) == HIGH) {
-      //   stepper1.stop();
-      //   stepper2.stop();
-      //   break;
-      // }
-      stepper1.run();
-      stepper2.run();
-    }
-
-    return true;
-  };
+  }
 
   void move(const float x, const float y) {
     // 1. 万が一範囲外の数値が来ても盤面から飛び出さないように 0.0 〜 1.0
@@ -126,13 +100,32 @@ public:
 
     // 2. 正規化座標（0〜1）を絶対ステップ数（0〜XSTEP/YSTEP）に変換する
     // AccelStepperは long 型の絶対座標を受け取るため、四捨五入してキャスト
-    long target_step_x = (long)(clipped_x * XSTEP);
-    long target_step_y = (long)(clipped_y * YSTEP);
+    long target_step_x = (long)(XSTEP * clipped_x);
+    long target_step_y = (long)(YSTEP * clipped_y);
 
     // 3. モーターに目標絶対座標を指示
-    stepper1.moveTo(target_step_x);
-    stepper2.moveTo(target_step_y);
+    // stepper1.moveTo(target_step_x);
+    // stepper2.moveTo(target_step_y);
+    stepper1.moveTo((target_step_x + target_step_y) * resolution);
+    stepper2.moveTo((-target_step_x + target_step_y) * resolution);
+  }
+
+  void gotoCenter() {
+    move(0.5f, 1.0f);
+
+    while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
+      this->run();
+    }
+  }
+
+  void run() {
+    if (digitalRead(SW_X) == HIGH || digitalRead(SW_Y) == HIGH) {
+      stepper1.stop();
+      stepper2.stop();
+    }
+    stepper1.run();
+    stepper2.run();
   }
 };
 
-#endif // XYCONTROL_HPP
+#endif  // XYCONTROL_HPP

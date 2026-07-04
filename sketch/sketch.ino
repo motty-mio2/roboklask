@@ -5,6 +5,9 @@
 #include <zephyr/kernel.h>
 Arduino_LED_Matrix matrix;
 K_MUTEX_DEFINE(anim_mtx);
+#elif defined(ARDUINO_MINIMA)
+#include "receiver.hpp"
+SerialBallReceiver receiver(Serial, 115200);
 #endif
 
 #include <vector>
@@ -14,24 +17,21 @@ K_MUTEX_DEFINE(anim_mtx);
 
 XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR);
 
-// Bridge providers run on a separate thread from loop().
-// This mutex protects shared animation state and serializes LED matrix writes.
 long targetPos = 1000;
 
 void setup() {
 #if defined(ARDUINO_UNO_Q)
-
   matrix.begin();
   matrix.setGrayscaleBits(1);
   matrix.clear();
-
   Bridge.begin();
-
   Monitor.begin();
+#elif defined(ARDUINO_MINIMA)
+  receiver.begin();
 #endif
 
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH); // キャリブレーション中点灯
+  digitalWrite(LED_BUILTIN, LOW);  // キャリブレーション完了前は消灯
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -55,32 +55,34 @@ void setup() {
   pinMode(M2, OUTPUT);
   digitalWrite(M2, setM2);
 
+  // キャリブレーション中はLEDを点灯
+  digitalWrite(LED_BUILTIN, HIGH);
   xyControl.homing(SW_X, SW_Y);
+  digitalWrite(LED_BUILTIN, LOW);  // 完了したら一旦消灯
+  xyControl.gotoCenter();
 }
 
 void loop() {
-  // // 1. モーターを動かす（最優先で呼ぶ）
-  // stepper1.run();
+  // 1. モーターのステップを更新（最優先・毎回実行）
+  xyControl.run();
 
-  // // 2. 目標地点に着いたら反転する
-  // if (stepper1.distanceToGo() == 0) {
-  //   Serial.print("Reached target! Current: ");
-  //   Serial.println(stepper1.currentPosition());
+#if !defined(ARDUINO_UNO_Q)
+  // 2. シリアルポートからボール位置を受信（Minima専用）
+  BallPosition pos;
+  if (receiver.receive(pos)) {
+    // 【通信確認用デバッグ】データを受信するたびにLEDをチカチカ点滅させる
+    static bool ledState = false;
+    ledState = !ledState;
+    digitalWrite(LED_BUILTIN, ledState ? HIGH : LOW);
 
-  //   delay(500);              // 少し止まってから反対へ
-  //   targetPos = -targetPos;  // 4000 ↔ -4000
-  //   stepper1.moveTo(targetPos);
+    // 送信データ範囲 [0.0, 1.0] は XYControl.move の入力範囲 [0.0, 1.0]
+    // にそのまま対応
+    float x_mapped = pos.x;
+    // y: 0.0 (手前) -> 0.0,  1.0 (奥) -> 1.0
+    float y_mapped = pos.y;
+    // float y_mapped = 0.2f; // テスト用固定値
 
-  //   Serial.print("Next target set to: ");
-  //   Serial.println(targetPos);
-  // }
-
-  // // 3. 定期的に現在地をprintする（100msごとなど、やりすぎ注意）
-  // static unsigned long lastPrint = 0;
-  // if (millis() - lastPrint > 100) {
-  //   // 動作が重くならないよう、動いている最中も軽く表示
-  //   Monitor.print("Pos: ");
-  //   Monitor.println(stepper1.currentPosition());
-  //   lastPrint = millis();
-  // }
+    xyControl.move(x_mapped, y_mapped);
+  }
+#endif
 }
