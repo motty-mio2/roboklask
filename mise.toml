@@ -1,5 +1,3 @@
-experimental_monorepo_root = true
-
 [monorepo]
 config_roots = ["sketch", "python"]
 
@@ -19,8 +17,8 @@ depends = ["//*:format", "toml_format"]
 [tasks.lint]
 depends = ["//*:lint", "toml_lint"]
 
-[tasks.compile]
-depends = ["sketch:compile"]
+[tasks.build]
+depends = ["sketch:build"]
 
 [tools]
 tombi = "latest"

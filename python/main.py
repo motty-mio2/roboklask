@@ -1,18 +1,34 @@
-import random
-import time
+from typing import Any
 
+from arduino.app_bricks.web_ui import WebUI
 from arduino.app_utils import App, Bridge
 
-print("Hello world!")
+# Initialize WebUI
+ui = WebUI()
 
 
-def loop() -> None:
-    x = random.random()
-    y = random.random()
+def api_xy(data: dict) -> dict[str, Any]:
+    """Handle the XY update request from WebUI."""
+    try:
 
-    Bridge.call("xy", x, y)
+        x = float(data.get("x", 0.5))
+        y = float(data.get("y", 0.0))
 
-    time.sleep(1)
+        print(f"Action: Updating LED to x={x:.2f}, y={y:.2f}")
+
+        # Call Arduino Bridge function
+        Bridge.call("xy", x, y)
+
+        return {"status": "success", "x": x, "y": y}
+    except Exception as e:
+        print(f"Error: {e}")
+        return {"status": "error", "message": str(e)}
 
 
-App.run(user_loop=loop)
+# Register the API endpoint
+# Framework likely prepends /api automatically
+ui.expose_api("POST", "/xy", api_xy)
+
+
+
+App.run()

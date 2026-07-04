@@ -1,56 +1,86 @@
+#include <AccelStepper.h>
+#if defined(ARDUINO_UNO_Q)
 #include <Arduino_LED_Matrix.h>
 #include <Arduino_RouterBridge.h>
 #include <zephyr/kernel.h>
+Arduino_LED_Matrix matrix;
+K_MUTEX_DEFINE(anim_mtx);
+#endif
 
 #include <vector>
 
-Arduino_LED_Matrix matrix;
+#include "pinout.h"
+#include "xycontrol.hpp"
+
+XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR);
 
 // Bridge providers run on a separate thread from loop().
 // This mutex protects shared animation state and serializes LED matrix writes.
-K_MUTEX_DEFINE(anim_mtx);
-
-// Animation playback state
-static const int MAX_FRAMES = 300;
-static uint32_t animation_buf[MAX_FRAMES][5]; // 4 words + duration (ms)
-static int animation_frame_count = 0;
-static bool animation_running = false;
-static int animation_current_frame = 0;
-static unsigned long animation_next_time = 0;
-
-constexpr uint8_t WIDTH = 13;
-constexpr uint8_t HALF_WIDTH = WIDTH / 2;
-constexpr uint8_t HEIGHT = 8;
-
-void xy(float x, float y);
+long targetPos = 1000;
 
 void setup() {
+#if defined(ARDUINO_UNO_Q)
+
   matrix.begin();
   matrix.setGrayscaleBits(1);
   matrix.clear();
 
   Bridge.begin();
-  Bridge.provide("xy", xy);
 
   Monitor.begin();
+#endif
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH); // キャリブレーション中点灯
+
+  pinMode(SW_X, INPUT_PULLUP);
+  pinMode(SW_Y, INPUT_PULLUP);
+
+  pinMode(nEN, OUTPUT);
+  digitalWrite(nEN, HIGH);
+
+  // 0, 1番ピンのINPUTハック
+  if (setM0) {
+    pinMode(M0, OUTPUT);
+    digitalWrite(M0, true);
+  } else {
+    pinMode(M0, INPUT);
+  }
+  if (setM1) {
+    pinMode(M1, OUTPUT);
+    digitalWrite(M1, true);
+  } else {
+    pinMode(M1, INPUT);
+  }
+  pinMode(M2, OUTPUT);
+  digitalWrite(M2, setM2);
+
+  xyControl.homing(SW_X, SW_Y);
 }
 
-void loop() { delay(1); }
+void loop() {
+  // // 1. モーターを動かす（最優先で呼ぶ）
+  // stepper1.run();
 
-// --- Functions
+  // // 2. 目標地点に着いたら反転する
+  // if (stepper1.distanceToGo() == 0) {
+  //   Serial.print("Reached target! Current: ");
+  //   Serial.println(stepper1.currentPosition());
 
-const uint8_t *generate_matrix(float x, float y) {
-  static uint8_t led[104];
-  memset(led, 0, sizeof(led));
+  //   delay(500);              // 少し止まってから反対へ
+  //   targetPos = -targetPos;  // 4000 ↔ -4000
+  //   stepper1.moveTo(targetPos);
 
-  int xx = int(min(max(y, -1.0f), 1.0f) * HALF_WIDTH + HALF_WIDTH);
-  int yy = int(min(max(x, 0.0f), 1.0f) * (HEIGHT - 1));
+  //   Serial.print("Next target set to: ");
+  //   Serial.println(targetPos);
+  // }
 
-  led[xx + yy * WIDTH] = 1;
-
-  return led;
+  // // 3. 定期的に現在地をprintする（100msごとなど、やりすぎ注意）
+  // static unsigned long lastPrint = 0;
+  // if (millis() - lastPrint > 100) {
+  //   // 動作が重くならないよう、動いている最中も軽く表示
+  //   Monitor.print("Pos: ");
+  //   Monitor.println(stepper1.currentPosition());
+  //   lastPrint = millis();
+  // }
 }
-
-// --- Bridge providers --------------------------------------------------------
-
-void xy(float x, float y) { matrix.draw(generate_matrix(x, y)); }

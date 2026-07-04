@@ -1,19 +1,13 @@
 [tools]
 clang-format = "latest"
+arduino-cli = "latest"
+just = "latest"
 
 [tasks.lint]
-run = """
-clang-format \
---Werror --dry-run \
-pinout.h sketch.ino
-"""
+run = "just format-check"
 
 [tasks.format]
-run = """
-clang-format \
--i \
-pinout.h sketch.ino
-"""
+run = "just format"
 
-[tasks.compile]
+[tasks.build]
 run = "arduino-cli compile --fqbn arduino:zephyr:unoq ."
