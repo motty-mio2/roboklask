@@ -39,19 +39,11 @@ void setup() {
   pinMode(nEN, OUTPUT);
   digitalWrite(nEN, HIGH);
 
-  // 0, 1番ピンのINPUTハック
-  if (setM0) {
-    pinMode(M0, OUTPUT);
-    digitalWrite(M0, true);
-  } else {
-    pinMode(M0, INPUT);
-  }
-  if (setM1) {
-    pinMode(M1, OUTPUT);
-    digitalWrite(M1, true);
-  } else {
-    pinMode(M1, INPUT);
-  }
+  // M0, M1, M2ピンの出力を明示的に設定
+  pinMode(M0, OUTPUT);
+  digitalWrite(M0, setM0);
+  pinMode(M1, OUTPUT);
+  digitalWrite(M1, setM1);
   pinMode(M2, OUTPUT);
   digitalWrite(M2, setM2);
 
