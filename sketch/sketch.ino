@@ -4,7 +4,7 @@
 #include <Arduino_RouterBridge.h>
 #include <zephyr/kernel.h>
 Arduino_LED_Matrix matrix;
-K_MUTEX_DEFINE(anim_mtx);
+K_MUTEX_DEFINE(xy_mutex);
 unsigned long lastReportMs = 0;
 #elif defined(ARDUINO_MINIMA)
 #include "serial_bridge.hpp"
@@ -30,8 +30,10 @@ void setup() {
   matrix.clear();
   Bridge.begin();
   Bridge.provide("xy", [](float x, float y) {
+    k_mutex_lock(&xy_mutex, K_FOREVER);
     new_head_pos.x = constrain(x, 0.0f, 1.0f);
     new_head_pos.y = constrain(y, 0.0f, 1.0f);
+    k_mutex_unlock(&xy_mutex);
   });
   Monitor.begin();
 #elif defined(ARDUINO_MINIMA)
@@ -89,5 +91,15 @@ void loop() {
   // 現在のXY位置をUARTで送信（SerialBridge内で20ms間引き）
   bridge.sendPosition(head_pos);
 #endif
-  xyControl.move(new_head_pos);
+
+  Position local_new_head_pos;
+#if defined(ARDUINO_UNO_Q)
+  k_mutex_lock(&xy_mutex, K_FOREVER);
+  local_new_head_pos = new_head_pos;
+  k_mutex_unlock(&xy_mutex);
+#elif defined(ARDUINO_MINIMA)
+  local_new_head_pos = new_head_pos;
+#endif
+
+  xyControl.move(local_new_head_pos);
 }
