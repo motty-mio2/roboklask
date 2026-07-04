@@ -9,3 +9,6 @@ run = ["uv run poe lint", "uv run poe check"]
 
 [tasks.format]
 run = "uv run poe format"
+
+[tasks.all]
+depends = ["lint", "format"]
