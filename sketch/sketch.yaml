@@ -5,6 +5,7 @@ profiles:
       - platform: arduino:zephyr
     libraries:
       - AccelStepper (1.64.0)
+      - Arduino_LED_Matrix
   minima:
     fqbn: arduino:renesas_uno:minima
     platforms:

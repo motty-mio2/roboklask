@@ -6,8 +6,8 @@
 Arduino_LED_Matrix matrix;
 K_MUTEX_DEFINE(anim_mtx);
 #elif defined(ARDUINO_MINIMA)
-#include "receiver.hpp"
-SerialBallReceiver receiver(Serial, 115200);
+#include "serial_bridge.hpp"
+SerialBridge bridge(Serial, 115200);
 #endif
 
 #include <vector>
@@ -15,7 +15,7 @@ SerialBallReceiver receiver(Serial, 115200);
 #include "pinout.h"
 #include "xycontrol.hpp"
 
-XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR);
+XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR, SW_X, SW_Y);
 
 long targetPos = 1000;
 
@@ -27,7 +27,7 @@ void setup() {
   Bridge.begin();
   Monitor.begin();
 #elif defined(ARDUINO_MINIMA)
-  receiver.begin();
+  bridge.begin();
 #endif
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -49,19 +49,22 @@ void setup() {
 
   // キャリブレーション中はLEDを点灯
   digitalWrite(LED_BUILTIN, HIGH);
-  xyControl.homing(SW_X, SW_Y);
+  xyControl.homing();
   digitalWrite(LED_BUILTIN, LOW);  // 完了したら一旦消灯
   xyControl.gotoCenter();
 }
 
+Position new_head_pos;
+Position head_pos;
+
 void loop() {
   // 1. モーターのステップを更新（最優先・毎回実行）
   xyControl.run();
+  xyControl.getCurrentXY(head_pos);
 
 #if !defined(ARDUINO_UNO_Q)
-  // 2. シリアルポートからボール位置を受信（Minima専用）
-  BallPosition pos;
-  if (receiver.receive(pos)) {
+  // 2. シリアルポートからボール位置を受信し、現在XY位置を返送（Minima専用）
+  if (bridge.receive(new_head_pos)) {
     // 【通信確認用デバッグ】データを受信するたびにLEDをチカチカ点滅させる
     static bool ledState = false;
     ledState = !ledState;
@@ -69,12 +72,10 @@ void loop() {
 
     // 送信データ範囲 [0.0, 1.0] は XYControl.move の入力範囲 [0.0, 1.0]
     // にそのまま対応
-    float x_mapped = pos.x;
-    // y: 0.0 (手前) -> 0.0,  1.0 (奥) -> 1.0
-    float y_mapped = pos.y;
-    // float y_mapped = 0.2f; // テスト用固定値
-
-    xyControl.move(x_mapped, y_mapped);
   }
+
+  // 現在のXY位置をUARTで送信（SerialBridge内で20ms間引き）
+  bridge.sendPosition(head_pos);
 #endif
+  xyControl.move(new_head_pos);
 }

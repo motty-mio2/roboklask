@@ -5,24 +5,34 @@
 #include <Arduino.h>
 
 #include "motor_config.h"
+#
+
+struct Position {
+  float x;
+  float y;
+};
 
 class XYControl {
  private:
   AccelStepper stepper1;
   AccelStepper stepper2;
+  int sw_x;
+  int sw_y;
 
  public:
   XYControl(const int m1_step, const int m1_dir, const int m2_step,
-            const int m2_dir)
+            const int m2_dir, const int sw_x, const int sw_y)
       : stepper1(AccelStepper(1, m1_step, m1_dir)),
-        stepper2(AccelStepper(1, m2_step, m2_dir)) {
+        stepper2(AccelStepper(1, m2_step, m2_dir)),
+        sw_x(sw_x),
+        sw_y(sw_y) {
     stepper1.setMaxSpeed(STEP * 3 * resolution);
     stepper1.setAcceleration(STEP * 3 * resolution);
     stepper2.setMaxSpeed(STEP * 3 * resolution);
     stepper2.setAcceleration(STEP * 3 * resolution);
   }
 
-  bool homing(const int sw_x, const int sw_y) {
+  bool homing() {
     // ホーミング用の微小移動ステップ（0へ向かってマイナスに進む）
     // 安全のためのキャリブレーション用低速設定
     stepper1.setMaxSpeed(STEP * 3 * resolution);
@@ -92,11 +102,11 @@ class XYControl {
     stepper2.setAcceleration(STEP * 5 * resolution);
   }
 
-  void move(const float x, const float y) {
+  void move(const Position& pos) {
     // 1. 万が一範囲外の数値が来ても盤面から飛び出さないように 0.0 〜 1.0
     // にクリップする
-    float clipped_x = constrain(x, 0.0f, 1.0f);
-    float clipped_y = constrain(y, 0.0f, 1.0f);
+    float clipped_x = constrain(pos.x, 0.0f, 1.0f);
+    float clipped_y = constrain(pos.y, 0.0f, 1.0f);
 
     // 2. 正規化座標（0〜1）を絶対ステップ数（0〜XSTEP/YSTEP）に変換する
     // AccelStepperは long 型の絶対座標を受け取るため、四捨五入してキャスト
@@ -111,15 +121,29 @@ class XYControl {
   }
 
   void gotoCenter() {
-    move(0.5f, 1.0f);
+    move({0.5f, 1.0f});
 
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       this->run();
     }
   }
 
+  void getCurrentXY(Position& pos) {
+    long s1 = stepper1.currentPosition();
+    long s2 = stepper2.currentPosition();
+    // H-bot逆変換:
+    //   s1 = (sx + sy) * resolution
+    //   s2 = (-sx + sy) * resolution
+    // → sx = (s1 - s2) / (2 * resolution)
+    // → sy = (s1 + s2) / (2 * resolution)
+    long sx = (s1 - s2) / (2 * resolution);
+    long sy = (s1 + s2) / (2 * resolution);
+    pos.x = (float)sx / XSTEP;
+    pos.y = (float)sy / YSTEP;
+  }
+
   void run() {
-    if (digitalRead(SW_X) == HIGH || digitalRead(SW_Y) == HIGH) {
+    if (digitalRead(sw_x) == HIGH || digitalRead(sw_y) == HIGH) {
       stepper1.stop();
       stepper2.stop();
     }
