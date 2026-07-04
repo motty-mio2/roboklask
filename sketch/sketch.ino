@@ -5,6 +5,7 @@
 #include <zephyr/kernel.h>
 Arduino_LED_Matrix matrix;
 K_MUTEX_DEFINE(anim_mtx);
+unsigned long lastReportMs = 0;
 #elif defined(ARDUINO_MINIMA)
 #include "serial_bridge.hpp"
 SerialBridge bridge(Serial, 115200);
@@ -19,19 +20,26 @@ XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR, SW_X, SW_Y);
 
 long targetPos = 1000;
 
+Position new_head_pos;
+Position head_pos;
+
 void setup() {
 #if defined(ARDUINO_UNO_Q)
   matrix.begin();
   matrix.setGrayscaleBits(1);
   matrix.clear();
   Bridge.begin();
+  Bridge.provide("xy", [](float x, float y) {
+    new_head_pos.x = constrain(x, 0.0f, 1.0f);
+    new_head_pos.y = constrain(y, 0.0f, 1.0f);
+  });
   Monitor.begin();
 #elif defined(ARDUINO_MINIMA)
   bridge.begin();
 #endif
 
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW); // キャリブレーション完了前は消灯
+  digitalWrite(LED_BUILTIN, LOW);  // キャリブレーション完了前は消灯
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -50,19 +58,23 @@ void setup() {
   // キャリブレーション中はLEDを点灯
   digitalWrite(LED_BUILTIN, HIGH);
   xyControl.homing();
-  digitalWrite(LED_BUILTIN, LOW); // 完了したら一旦消灯
+  digitalWrite(LED_BUILTIN, LOW);  // 完了したら一旦消灯
   xyControl.gotoCenter();
 }
-
-Position new_head_pos;
-Position head_pos;
 
 void loop() {
   // 1. モーターのステップを更新（最優先・毎回実行）
   xyControl.run();
   xyControl.getCurrentXY(head_pos);
 
-#if !defined(ARDUINO_UNO_Q)
+#if defined(ARDUINO_UNO_Q)
+  // 20msごとにPython側へ現在XY位置を通知
+  unsigned long now = millis();
+  if (now - lastReportMs >= 20) {
+    lastReportMs = now;
+    Bridge.call("report_xy", head_pos.x, head_pos.y);
+  }
+#elif defined(ARDUINO_MINIMA)
   // 2. シリアルポートからボール位置を受信し、現在XY位置を返送（Minima専用）
   if (bridge.receive(new_head_pos)) {
     // 【通信確認用デバッグ】データを受信するたびにLEDをチカチカ点滅させる
