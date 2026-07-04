@@ -4,7 +4,7 @@ import time
 import cv2
 
 from .calibration import BoardCalibrator
-from .config import CameraType, OutputType, PolicyType, settings
+from .config import CameraType, PolicyType, settings
 from .infrastructure.mcu_connections import get_mcu_connection
 from .infrastructure.vision_sources import get_vision_source
 from .presentation import DebuggerUI, RawVisionDebugger, RobotOrientDebugger

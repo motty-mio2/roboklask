@@ -38,9 +38,9 @@ class OakdVisionSource(VisionSource):
         mono_left = pipeline.create(dai.node.MonoCamera)
         mono_right = pipeline.create(dai.node.MonoCamera)
         stereo = pipeline.create(dai.node.StereoDepth)
-        detection_network = pipeline.create(dai.node.YoloSpatialDetectionNetwork)  # type: ignore
-        xout_rgb = pipeline.create(dai.node.XLinkOut)  # type: ignore
-        nn_out = pipeline.create(dai.node.XLinkOut)  # type: ignore
+        detection_network = pipeline.create(dai.node.YoloSpatialDetectionNetwork)
+        xout_rgb = pipeline.create(dai.node.XLinkOut)
+        nn_out = pipeline.create(dai.node.XLinkOut)
 
         xout_rgb.setStreamName("rgb")
         nn_out.setStreamName("nn")
@@ -59,7 +59,7 @@ class OakdVisionSource(VisionSource):
         mono_right.setBoardSocket(dai.CameraBoardSocket.RIGHT)
 
         # Stereo depth properties
-        stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)  # type: ignore
+        stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
         stereo.setDepthAlign(dai.CameraBoardSocket.RGB)
 
         # YOLO spatial detection network properties
@@ -91,7 +91,7 @@ class OakdVisionSource(VisionSource):
 
         print("Initializing OAK-D camera...")
         try:
-            self.device = dai.Device(pipeline)  # type: ignore
+            self.device = dai.Device(pipeline)
             self.q_rgb = self.device.getOutputQueue(name="rgb", maxSize=4, blocking=False)
             self.q_det = self.device.getOutputQueue(name="nn", maxSize=4, blocking=False)
             print("OAK-D camera stream started.")

@@ -5,7 +5,7 @@ uv = "latest"
 run = "uv run poe export"
 
 [tasks.lint]
-run = "uv run poe lint"
+run = ["uv run poe lint", "uv run poe check"]
 
 [tasks.format]
 run = "uv run poe format"

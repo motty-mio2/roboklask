@@ -90,7 +90,9 @@ class VisionSettings(KlaskBaseSettings):
         description="Board calibration and color segmentation settings",
     )
 
-    output_type: OutputType = Field(default=OutputType.NONE, description="Type of output sender ('none', 'uart', or 'bridge')")
+    output_type: OutputType = Field(
+        default=OutputType.NONE, description="Type of output sender ('none', 'uart', or 'bridge')"
+    )
     policy_type: PolicyType = Field(
         default=PolicyType.BALL_TRACKING, description="Motion planning policy ('ball_tracking' or 'ppo')"
     )
