@@ -17,6 +17,6 @@ format:
 format-check:
     find {{ target }} -exec clang-format --Werror --dry-run -i {} +;
 
-build:
-    arduino-cli compile --fqbn arduino:zephyr:unoq .
+build profile='default':
+    arduino-cli compile -m {{profile}} .
 

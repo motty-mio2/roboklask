@@ -21,31 +21,36 @@ jobs:
         with:
           working_directory: sketch
       - name: Run clang-format
-        run: |
-          mise lint
+        run: mise lint
         working-directory: sketch
+
   compile:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        profile: [default, minima]
     steps:
       - uses: actions/checkout@v6
+
       - name: Cache Arduino Dependencies
         uses: actions/cache@v5
         with:
           path: |
             ~/.arduino15
             ~/Arduino
-          key: arduino-dependencies-${{ hashFiles('sketch/**') }}
+          key: arduino-${{ matrix.profile }}-${{ hashFiles('sketch/**') }}
           restore-keys: |
-            arduino-dependencies-
+            arduino-${{ matrix.profile }}-
             arduino-
+
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v2
 
-      - name: Install Platform
+      - name: Install Platforms
         run: |
           arduino-cli core update-index
-          arduino-cli core install arduino:zephyr
+          arduino-cli core install arduino:zephyr arduino:renesas_uno
 
-      - name: Compile Sketch
-        run: arduino-cli compile --fqbn arduino:zephyr:unoq .
+      - name: Compile Sketch (${{ matrix.profile }})
+        run: arduino-cli compile -m ${{ matrix.profile }} .
         working-directory: sketch
