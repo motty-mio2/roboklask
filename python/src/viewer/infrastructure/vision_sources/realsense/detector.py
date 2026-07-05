@@ -56,7 +56,13 @@ class OnnxRuntimeYoloDetector:
         input_tensor = np.expand_dims(img, axis=0)
 
         # Run inference
+        import time
+
+        start_time = time.perf_counter()
         outputs = self.session.run([self.output_name], {self.input_name: input_tensor})
+        elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+        print(f"[RealSense YOLO] Inference time: {elapsed_ms:.2f} ms")
+
         output = np.squeeze(outputs[0])  # Shape: (6, 8400) or similar
 
         # Parse outputs

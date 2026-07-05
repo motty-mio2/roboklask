@@ -36,7 +36,12 @@ class OnnxInferenceEngine(InferenceEngine):
 
         try:
             # Run inference: Input name is 'observation', Output name is 'action'
+            import time
+
+            start_time = time.perf_counter()
             outputs = self.session.run(["action"], {"observation": obs})
+            elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+
             action = outputs[0][0]  # shape [2] -> [target_x, target_y]
 
             target_x = float(action[0])
@@ -46,8 +51,9 @@ class OnnxInferenceEngine(InferenceEngine):
             target_robot_xy = RobotXY(x=max(0.0, min(1.0, target_x)), y=max(-1.0, min(1.0, target_y))).as_our_side()
 
             print(
-                f"PPO Inference: Obs=[B:({ball.x:.2f},{ball.y:.2f}), "
-                f"S:({striker.x:.2f},{striker.y:.2f})] -> Target=({target_robot_xy.x:.2f},{target_robot_xy.y:.2f})"
+                f"[PPO] Inference time: {elapsed_ms:.2f} ms | "
+                f"Obs=[B:({ball.x:.2f},{ball.y:.2f}), S:({striker.x:.2f},{striker.y:.2f})] -> "
+                f"Target=({target_robot_xy.x:.2f},{target_robot_xy.y:.2f})"
             )
             return target_robot_xy
 

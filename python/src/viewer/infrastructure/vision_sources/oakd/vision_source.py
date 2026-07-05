@@ -23,6 +23,7 @@ class OakdVisionSource(VisionSource):
         self.device: Any | None = None
         self.q_rgb: Any | None = None
         self.q_det: Any | None = None
+        self.last_frame_time: float | None = None
 
     def start(self) -> None:
         if not os.path.exists(self.blob_path):
@@ -38,9 +39,9 @@ class OakdVisionSource(VisionSource):
         mono_left = pipeline.create(dai.node.MonoCamera)
         mono_right = pipeline.create(dai.node.MonoCamera)
         stereo = pipeline.create(dai.node.StereoDepth)
-        detection_network = pipeline.create(dai.node.YoloSpatialDetectionNetwork)
-        xout_rgb = pipeline.create(dai.node.XLinkOut)
-        nn_out = pipeline.create(dai.node.XLinkOut)
+        detection_network = pipeline.create(dai.node.YoloSpatialDetectionNetwork)  # type: ignore
+        xout_rgb = pipeline.create(dai.node.XLinkOut)  # type: ignore
+        nn_out = pipeline.create(dai.node.XLinkOut)  # type: ignore
 
         xout_rgb.setStreamName("rgb")
         nn_out.setStreamName("nn")
@@ -59,7 +60,7 @@ class OakdVisionSource(VisionSource):
         mono_right.setBoardSocket(dai.CameraBoardSocket.RIGHT)
 
         # Stereo depth properties
-        stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
+        stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)  # type: ignore
         stereo.setDepthAlign(dai.CameraBoardSocket.RGB)
 
         # YOLO spatial detection network properties
@@ -91,7 +92,7 @@ class OakdVisionSource(VisionSource):
 
         print("Initializing OAK-D camera...")
         try:
-            self.device = dai.Device(pipeline)
+            self.device = dai.Device(pipeline)  # type: ignore
             self.q_rgb = self.device.getOutputQueue(name="rgb", maxSize=4, blocking=False)
             self.q_det = self.device.getOutputQueue(name="nn", maxSize=4, blocking=False)
             print("OAK-D camera stream started.")
@@ -109,6 +110,15 @@ class OakdVisionSource(VisionSource):
 
         if in_rgb is None or in_det is None:
             return None
+
+        import time
+
+        now = time.perf_counter()
+        if self.last_frame_time is not None:
+            diff_ms = (now - self.last_frame_time) * 1000.0
+            fps = 1000.0 / diff_ms if diff_ms > 0 else 0.0
+            print(f"[OAK-D] Frame interval: {diff_ms:.2f} ms ({fps:.1f} FPS)")
+        self.last_frame_time = now
 
         frame = in_rgb.getCvFrame()
         detections: list[Detection] = []
