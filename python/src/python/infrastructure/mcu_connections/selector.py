@@ -1,5 +1,5 @@
-from viewer.config import OutputType, settings
-from viewer.domain import McuConnection
+from python.domain import McuConnection
+from python.domain.config import OutputType, settings
 
 from .null_connection import NullMcuConnection
 from .serial_connection import SerialMcuConnection

@@ -1,7 +1,7 @@
 from typing import Protocol
 
-from viewer.domain.models import Detection, DetectionLabel
-from viewer.domain.value_objects import RobotXY
+from python.domain.models import Detection, DetectionLabel
+from python.domain.value_objects import RobotXY
 
 
 class MotionPolicy(Protocol):

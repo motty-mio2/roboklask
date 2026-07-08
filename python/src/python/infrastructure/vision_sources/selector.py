@@ -1,14 +1,14 @@
 import sys
 
-from viewer.config import CameraType
-from viewer.domain import VisionSource
+from python.domain import VisionSource
+from python.domain.config import CameraType
 
 
 def get_vision_source(camera: CameraType, model_path: str, conf: float, iou: float) -> VisionSource:
     """Factory to instantiate the selected camera VisionSource using lazy imports."""
     if camera == CameraType.OAKD:
         try:
-            from viewer.infrastructure.vision_sources.oakd.vision_source import OakdVisionSource
+            from python.infrastructure.vision_sources.oakd.vision_source import OakdVisionSource
         except ImportError:
             print(
                 "Error: Could not import OAK-D dependencies. Make sure 'depthai' is installed.",
@@ -24,7 +24,7 @@ def get_vision_source(camera: CameraType, model_path: str, conf: float, iou: flo
 
     elif camera == CameraType.REALSENSE:
         try:
-            from viewer.infrastructure.vision_sources.realsense.vision_source import RealsenseVisionSource
+            from python.infrastructure.vision_sources.realsense.vision_source import RealsenseVisionSource
         except ImportError:
             print(
                 "Error: Could not import RealSense dependencies. Make sure 'pyrealsense2' is installed.",

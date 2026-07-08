@@ -3,9 +3,9 @@ import struct
 
 import serial
 
-from viewer.config import settings
-from viewer.domain import RobotXY
-from viewer.domain.mcu_connection import McuConnection
+from python.domain import RobotXY
+from python.domain.config import settings
+from python.domain.mcu_connection import McuConnection
 
 
 class SerialMcuConnection(McuConnection):

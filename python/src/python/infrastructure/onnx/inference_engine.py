@@ -2,8 +2,8 @@ from typing import Any
 
 import numpy as np
 
-from viewer.domain import RobotXY
-from viewer.domain.motion import InferenceEngine
+from python.domain import RobotXY
+from python.domain.motion import InferenceEngine
 
 
 class OnnxInferenceEngine(InferenceEngine):

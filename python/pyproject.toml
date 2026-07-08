@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
+authors = [{ name = "motty", email = "motty.mio2@gmail.com" }]
 dependencies = [
   "arduino-app-bricks",
   "onnxruntime>=1.26.0",
@@ -27,6 +28,10 @@ luxonis = [
 realsense = [
   "pyrealsense2>=2.58.2.10647",
 ]
+
+[build-system]
+requires = ["uv_build>=0.11.26,<0.12.0"]
+build-backend = "uv_build"
 
 [tool.mypy]
 strict = true

@@ -2,9 +2,9 @@ from typing import Any, Protocol
 
 import cv2
 
-from viewer.calibration import BoardCalibrator
-from viewer.config import CameraType
-from viewer.domain import Detection, DetectionLabel
+from python.calibration import BoardCalibrator
+from python.domain import Detection, DetectionLabel
+from python.domain.config import CameraType
 
 
 class DebuggerUI(Protocol):

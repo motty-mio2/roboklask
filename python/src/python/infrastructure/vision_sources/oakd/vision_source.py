@@ -3,8 +3,8 @@ from typing import Any
 
 import depthai as dai
 
-from viewer.config import settings
-from viewer.domain import BoundingBox, Detection, DetectionLabel, SpatialXYZ, VisionSource
+from python.domain import BoundingBox, Detection, DetectionLabel, SpatialXYZ, VisionSource
+from python.domain.config import settings
 
 
 class OakdVisionSource(VisionSource):

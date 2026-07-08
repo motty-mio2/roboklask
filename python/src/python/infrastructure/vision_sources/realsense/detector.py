@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import onnxruntime as ort
 
-from viewer.domain import BoundingBox, Detection, DetectionLabel
+from python.domain import BoundingBox, Detection, DetectionLabel
 
 
 class OnnxRuntimeYoloDetector:

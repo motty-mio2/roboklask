@@ -4,8 +4,8 @@ from typing import Any
 import numpy as np
 import pyrealsense2 as rs
 
-from viewer.config import settings
-from viewer.domain import Detection, SpatialXYZ, VisionSource
+from python.domain import Detection, SpatialXYZ, VisionSource
+from python.domain.config import settings
 
 from .detector import OnnxRuntimeYoloDetector
 

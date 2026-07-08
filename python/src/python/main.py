@@ -3,12 +3,12 @@ import time
 
 import cv2
 
-from .calibration import BoardCalibrator
-from .config import CameraType, PolicyType, settings
-from .infrastructure.mcu_connections import get_mcu_connection
-from .infrastructure.vision_sources import get_vision_source
-from .presentation import DebuggerUI, RawVisionDebugger, RobotOrientDebugger
-from .usecase.track_ball import TrackBallUseCase
+from python.calibration import BoardCalibrator
+from python.domain.config import CameraType, PolicyType, settings
+from python.infrastructure.mcu_connections import get_mcu_connection
+from python.infrastructure.vision_sources import get_vision_source
+from python.presentation import DebuggerUI, RawVisionDebugger, RobotOrientDebugger
+from python.usecase.track_ball import TrackBallUseCase
 
 
 def parse_args() -> argparse.Namespace:
@@ -65,11 +65,11 @@ def main() -> None:
     source = get_vision_source(camera_type, model_path, args.conf, args.iou)
 
     # Determine motion planning policy (PPO model inference vs standard ball tracking)
-    from viewer.domain.motion import BallTrackingPolicy, ModelBasedPolicy, MotionPolicy
+    from python.domain.motion import BallTrackingPolicy, ModelBasedPolicy, MotionPolicy
 
     motion_policy: MotionPolicy
     if settings.policy_type == PolicyType.PPO:
-        from viewer.infrastructure.onnx import OnnxInferenceEngine
+        from python.infrastructure.onnx import OnnxInferenceEngine
 
         engine = OnnxInferenceEngine(str(settings.ppo_model_path))
         motion_policy = ModelBasedPolicy(engine)

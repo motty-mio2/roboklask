@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from viewer.domain.value_objects import RobotXY
+from python.domain.value_objects import RobotXY
 
 
 class McuConnection(Protocol):

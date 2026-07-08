@@ -46,7 +46,7 @@ unsigned long lastReportMs = 0;
 void setup() {
   // Bridge APIの初期化
   Bridge.begin();
-  
+
   // Python(MPU)側から呼び出されるRPC/通知のコールバック登録
   Bridge.provide("xy", [](float x, float y) {
     // コールバックは別スレッドで実行されるため、必ずロックを取得する
@@ -55,7 +55,7 @@ void setup() {
     new_head_pos.y = y;
     k_mutex_unlock(&xy_mutex);
   });
-  
+
   Monitor.begin();
 }
 
@@ -93,8 +93,8 @@ Python アプリケーション側では、`arduino-app-bricks` に含まれる 
 ```python
 import threading
 from arduino.app_utils import Bridge
-from viewer.domain import RobotXY
-from viewer.domain.mcu_connection import McuConnection
+from python.domain import RobotXY
+from python.domain.mcu_connection import McuConnection
 
 class BridgeMcuConnection(McuConnection):
     def __init__(self) -> None:

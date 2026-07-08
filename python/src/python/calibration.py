@@ -6,7 +6,7 @@ from typing import Any
 import cv2
 import numpy as np
 
-from viewer import config
+from python.domain import config
 
 
 class BoardCalibrator:

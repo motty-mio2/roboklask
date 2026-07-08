@@ -2,10 +2,10 @@ from collections.abc import Generator
 
 import numpy as np
 
-from viewer.calibration import BoardCalibrator
-from viewer.domain import BoundingBox, Detection, DetectionLabel, McuConnection, VisionSource
-from viewer.domain.motion import MotionPolicy
-from viewer.domain.value_objects import BoardXY
+from python.calibration import BoardCalibrator
+from python.domain import BoundingBox, Detection, DetectionLabel, McuConnection, VisionSource
+from python.domain.motion import MotionPolicy
+from python.domain.value_objects import BoardXY
 
 
 class TrackBallUseCase:

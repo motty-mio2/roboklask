@@ -1,5 +1,5 @@
-from viewer.domain.mcu_connection import McuConnection
-from viewer.domain.value_objects import RobotXY
+from python.domain.mcu_connection import McuConnection
+from python.domain.value_objects import RobotXY
 
 
 class NullMcuConnection(McuConnection):
