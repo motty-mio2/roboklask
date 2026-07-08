@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 def get_root_path() -> Path:
     """Get the root path of the project."""
-    return Path(__file__).parents[2]
+    return Path(__file__).parents[3]
 
 
 class CameraType(StrEnum):
