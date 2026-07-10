@@ -82,6 +82,10 @@ def main() -> None:
         calibrator=calibrator,
         mcu_connection=mcu_connection,
         motion_policy=motion_policy,
+        camera_type=camera_type,
+        model_path=model_path,
+        conf=args.conf,
+        iou=args.iou,
     )
 
     print(f"\nVision stream started using {camera_type.value.upper()}.")
@@ -152,4 +156,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    import multiprocessing
+
+    multiprocessing.set_start_method("spawn", force=True)
     main()
