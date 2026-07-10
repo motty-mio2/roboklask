@@ -124,8 +124,8 @@ def main() -> None:
             # `calibrate` subcommand (calibrate_interactive + save) and restore via
             # load() here instead.
             if not calibrated:
-                calibrator.calibrate_automatic(frame)
-                calibrated = True
+                if calibrator.calibrate_automatic(frame):
+                    calibrated = True
 
             # Dispatch to all registered presentation UI modules
             for debugger in debuggers:

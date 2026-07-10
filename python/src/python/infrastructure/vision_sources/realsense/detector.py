@@ -27,12 +27,23 @@ class OnnxRuntimeYoloDetector:
         if os.path.exists(self.model_path):
             try:
                 # Load ONNX model using ONNX Runtime
-                # Default to CPU execution provider
-                self.session = ort.InferenceSession(self.model_path, providers=["CPUExecutionProvider"])
+                # Use OpenVINO with Intel GPU (FP16) for acceleration, fallback to CPU if unavailable
+                providers = [
+                    (
+                        "OpenVINOExecutionProvider",
+                        {
+                            "device_type": "GPU",
+                            "precision": "FP16",
+                        },
+                    ),
+                    "CPUExecutionProvider",
+                ]
+                self.session = ort.InferenceSession(self.model_path, providers=providers)
                 self.input_name = self.session.get_inputs()[0].name
                 self.output_name = self.session.get_outputs()[0].name
                 self.has_model = True
                 print(f"Loaded YOLOv8 ONNX model using ONNX Runtime from {self.model_path}")
+                print(f"Active ONNX Runtime providers: {self.session.get_providers()}")
             except Exception as e:
                 print(f"Failed to load ONNX model {self.model_path} via ONNX Runtime: {e}")
                 print("Falling back to dummy detector.")

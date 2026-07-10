@@ -8,6 +8,7 @@ authors = [{ name = "motty", email = "motty.mio2@gmail.com" }]
 dependencies = [
   "arduino-app-bricks",
   "onnxruntime>=1.26.0",
+  "onnxruntime-openvino>=1.24.1",
   "opencv-contrib-python>=4.13.0.92",
   "pydantic>=2.13.4",
   "pydantic-settings>=2.14.2",
