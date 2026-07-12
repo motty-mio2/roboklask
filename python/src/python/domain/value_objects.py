@@ -30,7 +30,7 @@ class SpatialXYZ(BaseModel):
 
 
 class RobotXY(BaseModel):
-    x: float = Field(ge=0.0, le=1.0, description="Normalized X coordinate (0.0 ~ 1.0)")
+    x: float = Field(ge=-1.0, le=1.0, description="Normalized X coordinate (-1.0 ~ 1.0)")
     y: float = Field(ge=-1.0, le=1.0, description="Normalized Y coordinate (-1.0 ~ 1.0)")
 
     def as_opponent_side(self) -> Self:
@@ -53,14 +53,14 @@ class BoardXY(BaseModel):
         - Robot's X corresponds to Camera's Y.
         - Robot's Y corresponds to Camera's X.
         """
-        # Camera Y [0, board_height] maps to Robot X [0.0, 1.0]
-        robot_x = 1.0 - (self.board_y / board_height)
+        # Camera Y [0, board_height] maps to Robot X [-1.0, 1.0] (center at 0.0)
+        robot_x = 1.0 - (2.0 * self.board_y / board_height)
 
         # Camera X [0, board_width] maps to Robot Y [-1.0, 1.0] (center at 0.0)
         robot_y = 1.0 - (2.0 * self.board_x / board_width)
 
         # Apply safety bounding box clamps
-        robot_x = max(0.0, min(1.0, robot_x))
+        robot_x = max(-1.0, min(1.0, robot_x))
         robot_y = max(-1.0, min(1.0, robot_y))
 
         return RobotXY(x=robot_x, y=robot_y)

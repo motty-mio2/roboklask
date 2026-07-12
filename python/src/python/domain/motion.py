@@ -38,9 +38,9 @@ class ModelBasedPolicy(MotionPolicy):
         self.engine = engine
 
         # Keep track of last known coordinates for fallback if detections are missed
-        self.last_ball_x = 0.5
+        self.last_ball_x = 0.0
         self.last_ball_y = 0.0
-        self.last_striker_x = 0.5
+        self.last_striker_x = 0.0
         self.last_striker_y = -0.5
 
     def plan_motion(self, detections: list[Detection]) -> RobotXY | None:

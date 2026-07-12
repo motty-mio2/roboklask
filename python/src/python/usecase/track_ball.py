@@ -236,8 +236,8 @@ class TrackBallUseCase:
                         box=BoundingBox(xmin=0.0, ymin=0.0, xmax=0.0, ymax=0.0),
                         robot_xy=mcu_striker_xy,
                     )
-                    bx = float(self.calibrator.board_width) * (1.0 - mcu_striker_xy.x)
-                    by = float(self.calibrator.board_height) * (1.0 - mcu_striker_xy.y)
+                    bx = float(self.calibrator.board_width) * (1.0 - mcu_striker_xy.y) / 2.0
+                    by = float(self.calibrator.board_height) * (1.0 - mcu_striker_xy.x) / 2.0
                     striker_det.board_xy = BoardXY(board_x=bx, board_y=by)
                     detections.append(striker_det)
                 elif w > 0 and h > 0 and not (np.isnan(v_striker_u) or np.isnan(v_striker_v)):

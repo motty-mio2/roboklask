@@ -101,25 +101,25 @@ public:
   }
 
   void move(const Position &pos) {
-    // 1. 万が一範囲外の数値が来ても盤面から飛び出さないように 0.0 〜 1.0
-    // にクリップする
-    float clipped_x = constrain(pos.x, 0.0f, 1.0f);
+    // 1. 万が一範囲外の数値が来ても盤面から飛び出さないようにクリップする
+    // Xは -1.0 〜 1.0、Yは 0.0 〜 1.0
+    float clipped_x = constrain(pos.x, -1.0f, 1.0f);
     float clipped_y = constrain(pos.y, 0.0f, 1.0f);
 
-    // 2. 正規化座標（0〜1）を絶対ステップ数（0〜XSTEP/YSTEP）に変換する
-    // AccelStepperは long 型の絶対座標を受け取るため、四捨五入してキャスト
-    long target_step_x = (long)(XSTEP * clipped_x);
+    // 2. 正規化座標を絶対ステップ数（0〜XSTEP/YSTEP）に変換する
+    // X軸: -1.0〜1.0 -> 0.0〜1.0 にマッピングし直してから変換
+    float x_0_to_1 = (clipped_x + 1.0f) / 2.0f;
+    long target_step_x = (long)(XSTEP * x_0_to_1);
     long target_step_y = (long)(YSTEP * clipped_y);
 
     // 3. モーターに目標絶対座標を指示
-    // stepper1.moveTo(target_step_x);
-    // stepper2.moveTo(target_step_y);
     stepper1.moveTo((target_step_x + target_step_y) * resolution);
     stepper2.moveTo((-target_step_x + target_step_y) * resolution);
   }
 
   void gotoCenter() {
-    move({0.5f, 1.0f});
+    // X=0.0f (中央), Y=1.0f
+    move({0.0f, 1.0f});
 
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       this->run();
@@ -136,7 +136,9 @@ public:
     // → sy = (s1 + s2) / (2 * resolution)
     long sx = (s1 - s2) / (2 * resolution);
     long sy = (s1 + s2) / (2 * resolution);
-    pos.x = (float)sx / XSTEP;
+    // X軸: 0.0〜1.0 から -1.0〜1.0 へ逆マッピング
+    float x_0_to_1 = (float)sx / XSTEP;
+    pos.x = x_0_to_1 * 2.0f - 1.0f;
     pos.y = (float)sy / YSTEP;
   }
 

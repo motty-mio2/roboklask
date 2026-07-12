@@ -48,7 +48,7 @@ class OnnxInferenceEngine(InferenceEngine):
             target_y = float(action[1])
 
             # Ensure output is a valid coordinate pair clamped to our side
-            target_robot_xy = RobotXY(x=max(0.0, min(1.0, target_x)), y=max(-1.0, min(1.0, target_y))).as_our_side()
+            target_robot_xy = RobotXY(x=max(-1.0, min(1.0, target_x)), y=max(-1.0, min(1.0, target_y))).as_our_side()
 
             print(
                 f"[PPO] Inference time: {elapsed_ms:.2f} ms | "

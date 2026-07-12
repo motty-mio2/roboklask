@@ -70,7 +70,7 @@ class SerialMcuConnection(McuConnection):
                     x_val, y_val = struct.unpack("<ff", data[idx + 1 : idx + 9])
                     if not (math.isnan(x_val) or math.isnan(y_val) or math.isinf(x_val) or math.isinf(y_val)):
                         return RobotXY(
-                            x=max(0.0, min(1.0, float(x_val))),
+                            x=max(-1.0, min(1.0, float(x_val))),
                             y=max(-1.0, min(1.0, float(y_val))),
                         )
                 idx -= 1
