@@ -39,6 +39,9 @@ def main() -> None:
         executor.submit(driver.run)
         executor.submit(z.spin)
 
+    while True:
+        pass
+
 
 if __name__ == "__main__":
     main()
