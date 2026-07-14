@@ -1,8 +1,9 @@
 #include <AccelStepper.h>
 #if defined(ARDUINO_UNO_Q)
-#include <Arduino_LED_Matrix.h>
 #include <Arduino_RouterBridge.h>
 #include <zephyr/kernel.h>
+
+#include "matrix.h"
 Arduino_LED_Matrix matrix;
 K_MUTEX_DEFINE(xy_mutex);
 unsigned long lastReportMs = 0;
@@ -71,9 +72,9 @@ void loop() {
 
 #if defined(ARDUINO_UNO_Q)
   k_mutex_lock(&xy_mutex, K_FOREVER);
-  local_new_head_pos = new_head_pos;
+  Position vis_new_head_pos = new_head_pos;
   k_mutex_unlock(&xy_mutex);
-  xy(matrix, local_new_head_pos.x, local_new_head_pos.y);
+  xy(matrix, vis_new_head_pos.x, vis_new_head_pos.y);
   // 20msごとにPython側へ現在XY位置を通知
   // unsigned long now = millis();
   // if (now - lastReportMs >= 20) {

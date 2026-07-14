@@ -16,7 +16,7 @@ constexpr uint8_t WIDTH = 13;
 constexpr uint8_t HALF_WIDTH = WIDTH / 2;
 constexpr uint8_t HEIGHT = 8;
 
-const uint8_t* generate_matrix(float x, float y) {
+const uint8_t* generate_matrix(const float& x, const float& y) {
   static uint8_t led[104];
   memset(led, 0, sizeof(led));
 
@@ -30,7 +30,7 @@ const uint8_t* generate_matrix(float x, float y) {
 
 // --- Bridge providers --------------------------------------------------------
 
-void xy(Arduino_LED_Matrix matrix, float x, float y) {
+void xy(Arduino_LED_Matrix& matrix, const float& x, const float& y) {
   matrix.draw(generate_matrix(x, y));
 }
 
