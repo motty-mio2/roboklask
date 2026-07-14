@@ -1,14 +1,14 @@
 import time
 
 import zenoh
-from uart_bridge.domain.config import get_config_path
 
+from python.domain.config import get_config_dir
 from python.domain.model.robot_xy import RobotXY
 from python.domain.model.shared import Shared
 
 
 def create_zenoh_session() -> zenoh.Session:
-    return zenoh.open(zenoh.Config.from_file(get_config_path() / "zenoh.json5"))
+    return zenoh.open(zenoh.Config.from_file(get_config_dir() / "zenoh.json5"))
 
 
 class ZenohTransmitter:

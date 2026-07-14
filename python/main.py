@@ -1,44 +1,43 @@
 # Initialize WebUI
 # ui = WebUI()
+import argparse
 from concurrent.futures import ThreadPoolExecutor
 
 from python.domain.model.shared import Shared
-from python.infra.driver.bridge_driver import BridgeDriver
 from python.infra.transmitter.zenoh_transmitter import ZenohTransmitter
 
 
-def main():
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run roboklask Python runtime")
+    parser.add_argument(
+        "--driver",
+        choices=["serial", "bridge"],
+        default="bridge",
+        help="Communication driver: serial or bridge",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
 
     sh = Shared()
 
-    b = BridgeDriver(shared=sh)
+    if args.driver == "serial":
+        from python.infra.driver.serial_driver import SerialDriver
+
+        driver = SerialDriver(shared=sh)
+    elif args.driver == "bridge":
+        from python.infra.driver.bridge_driver import BridgeDriver
+
+        driver = BridgeDriver(shared=sh)
+    else:
+        raise ValueError(f"Unknown driver: {args.driver}")
     z = ZenohTransmitter(shared=sh)
 
     with ThreadPoolExecutor(max_workers=2) as executor:
-        executor.submit(b.run)
+        executor.submit(driver.run)
         executor.submit(z.spin)
-
-    # b.run()
-
-    # def api_xy(data: dict[str, Any]) -> dict[str, Any]:
-    #     """Handle the XY update request from WebUI."""
-    #     try:
-    #         x = float(data.get("x", 0.5))
-    #         y = float(data.get("y", 0.0))
-
-    #         print(f"Action: Updating LED to x={x:.2f}, y={y:.2f}")
-
-    #         # Call Arduino Bridge function
-    #         Bridge.call("xy", x, y)
-
-    #         return {"status": "success", "x": x, "y": y}
-    #     except Exception as e:
-    #         print(f"Error: {e}")
-    #         return {"status": "error", "message": str(e)}
-
-    # # Register the API endpoint
-    # # Framework likely prepends /api automatically
-    # ui.expose_api("POST", "/xy", api_xy)
 
 
 if __name__ == "__main__":

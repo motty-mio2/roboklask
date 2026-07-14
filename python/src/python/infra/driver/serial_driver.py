@@ -3,14 +3,22 @@ import struct
 
 import serial
 
+from python.domain.config import SerialConfig
 from python.domain.driver.base import RobotXY
+from python.domain.model.shared import Shared
+from python.domain.runtime import Runtime
 
 
 class SerialDriver:
-    def __init__(self, port: str, baudrate: int = 115200):
-        self.port = port
-        self.baudrate = baudrate
-        self.serial_connection = None
+    def __init__(self, shared: Shared) -> None:
+        sc = SerialConfig()
+
+        self.port = sc.serial_port
+        self.baudrate = sc.baudrate
+        self.shared = shared
+        self.predict = Runtime()
+
+        # self.serial_connection = None
 
         self.ser = serial.Serial(self.port, self.baudrate, timeout=1)
 
@@ -60,6 +68,24 @@ class SerialDriver:
             print(f"Error reading feedback from serial port: {e}")
 
         return None
+
+    def run(self) -> None:
+        while True:
+            fb = self.read_feedback()
+
+            if fb is not None:
+                with self.shared.lock:
+                    self.shared.striker = fb
+                    ba = self.shared.ball
+                st = fb
+            else:
+                with self.shared.lock:
+                    st = self.shared.striker
+                    ba = self.shared.ball
+
+            resp = self.predict.predict(ba, st)
+
+            self.send_target(resp)
 
     def stop(self) -> None:
         if self.ser.is_open:
