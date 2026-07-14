@@ -41,7 +41,7 @@ void setup() {
 #endif
 
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW); // キャリブレーション完了前は消灯
+  digitalWrite(LED_BUILTIN, LOW);  // キャリブレーション完了前は消灯
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -58,24 +58,28 @@ void setup() {
   digitalWrite(M2, setM2);
 
   // キャリブレーション中はLEDを点灯
-  digitalWrite(LED_BUILTIN, HIGH);
-  xyControl.homing();
-  digitalWrite(LED_BUILTIN, LOW); // 完了したら一旦消灯
-  xyControl.gotoCenter();
+  // digitalWrite(LED_BUILTIN, HIGH);
+  // xyControl.homing();
+  // digitalWrite(LED_BUILTIN, LOW); // 完了したら一旦消灯
+  // xyControl.gotoCenter();
 }
 
 void loop() {
   // 1. モーターのステップを更新（最優先・毎回実行）
-  xyControl.run();
-  xyControl.getCurrentXY(head_pos);
+  // xyControl.run();
+  // xyControl.getCurrentXY(head_pos);
 
 #if defined(ARDUINO_UNO_Q)
+  k_mutex_lock(&xy_mutex, K_FOREVER);
+  local_new_head_pos = new_head_pos;
+  k_mutex_unlock(&xy_mutex);
+  xy(matrix, local_new_head_pos.x, local_new_head_pos.y);
   // 20msごとにPython側へ現在XY位置を通知
-  unsigned long now = millis();
-  if (now - lastReportMs >= 20) {
-    lastReportMs = now;
-    Bridge.call("report_xy", head_pos.x, head_pos.y);
-  }
+  // unsigned long now = millis();
+  // if (now - lastReportMs >= 20) {
+  //   lastReportMs = now;
+  //   Bridge.call("report_xy", head_pos.x, head_pos.y);
+  // }
 #elif defined(ARDUINO_MINIMA)
   // 2. シリアルポートからボール位置を受信し、現在XY位置を返送（Minima専用）
   if (bridge.receive(new_head_pos)) {
