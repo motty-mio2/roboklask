@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 authors = [{ name = "motty", email = "motty.mio2@gmail.com" }]
 dependencies = [
   "arduino-app-bricks",
+  "eclipse-zenoh==1.9.0",
   "onnxruntime>=1.26.0",
   "pydantic>=2.13.4",
   "pydantic-settings>=2.14.2",
