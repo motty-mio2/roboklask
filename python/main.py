@@ -6,7 +6,6 @@ import time
 import threading
 
 from python.domain.model.shared import Shared
-from python.infra.transmitter.zenoh_transmitter import ZenohTransmitter
 
 
 def parse_args() -> argparse.Namespace:
@@ -16,6 +15,12 @@ def parse_args() -> argparse.Namespace:
         choices=["serial", "bridge"],
         default="bridge",
         help="Communication driver: serial or bridge",
+    )
+    parser.add_argument(
+        "--transmitter",
+        choices=["zenoh", "dummy"],
+        default="dummy",
+        help="Transmitter type: zenoh or dummy",
     )
     return parser.parse_args()
 
@@ -35,21 +40,25 @@ def main() -> None:
         driver = BridgeDriver(shared=sh)
     else:
         raise ValueError(f"Unknown driver: {args.driver}")
-    z = ZenohTransmitter(shared=sh)
 
-    def dummy_ball_updater() -> None:
-        while True:
-            time.sleep(1)
-            with sh.lock:
-                sh.ball.x = random.uniform(-1.0, 1.0)
-                sh.ball.y = random.uniform(-1.0, 1.0)
-                print(f"Target: {sh.ball}, Feedback: {sh.striker}", flush=True)
+    if args.transmitter == "zenoh":
+        from python.infra.transmitter.zenoh_transmitter import ZenohTransmitter
 
-    t_zenoh = threading.Thread(target=z.spin, name="ZenohTransmitterThread", daemon=True)
-    t_dummy = threading.Thread(target=dummy_ball_updater, name="DummyBallUpdaterThread", daemon=True)
+        transmitter = ZenohTransmitter(shared=sh)
+    elif args.transmitter == "dummy":
+        from python.infra.transmitter.dummy_transmitter import DummyTransmitter
 
-    t_zenoh.start()
-    t_dummy.start()
+        transmitter = DummyTransmitter(shared=sh)
+    else:
+        raise ValueError(f"Unknown transmitter: {args.transmitter}")
+
+    t_transmitter = threading.Thread(
+        target=transmitter.spin,
+        name="TransmitterThread",
+        daemon=True
+    )
+
+    t_transmitter.start()
 
     try:
         driver.run()
