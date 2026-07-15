@@ -33,7 +33,7 @@ void setup() {
   Bridge.provide("py2mcu", [](float x, float y) {
     k_mutex_lock(&xy_mutex, K_FOREVER);
     new_head_pos.x = constrain(x, 0.0f, 1.0f);
-    new_head_pos.y = constrain(y, 0.0f, 1.0f);
+    new_head_pos.y = constrain(y, -1.0f, 1.0f);
     k_mutex_unlock(&xy_mutex);
   });
   Monitor.begin();
