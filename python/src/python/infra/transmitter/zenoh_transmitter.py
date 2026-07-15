@@ -8,7 +8,11 @@ from python.domain.model.shared import Shared
 
 
 def create_zenoh_session() -> zenoh.Session:
-    return zenoh.open(zenoh.Config.from_file(get_config_dir() / "zenoh.json5"))
+    config_file = get_config_dir() / "zenoh.json5"
+    if config_file.exists():
+        return zenoh.open(zenoh.Config.from_file(config_file))
+    else:
+        return zenoh.open(zenoh.Config())
 
 
 class ZenohTransmitter:

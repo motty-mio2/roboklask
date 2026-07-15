@@ -9,7 +9,7 @@ from python.domain.model.robot_xy import RobotXY
 
 
 class Runtime:
-    MAX_LEN = 1
+    MAX_LEN = 3
 
     def __init__(self) -> None:
         self.model_path = (
