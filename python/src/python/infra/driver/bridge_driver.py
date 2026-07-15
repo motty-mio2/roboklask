@@ -35,6 +35,7 @@ class BridgeDriver(BaseDriver):
 
         resp = self.predict.predict(ba, st)
         self.py2mcu("py2mcu", resp)
+        Bridge.call("ball", ba.x, ba.y)  # type: ignore
 
     def run(self) -> None:
         """Run the BridgeDriver."""
