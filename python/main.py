@@ -1,6 +1,8 @@
 # Initialize WebUI
 # ui = WebUI()
 import argparse
+import random
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from python.domain.model.shared import Shared
@@ -40,7 +42,11 @@ def main() -> None:
         executor.submit(z.spin)
 
     while True:
-        pass
+        time.sleep(1)
+        with sh.lock:
+            sh.ball.x = random.uniform(-1.0, 1.0)
+            sh.ball.y = random.uniform(-1.0, 1.0)
+            print(f"Target: {sh.ball}, Feedback: {sh.striker}")
 
 
 if __name__ == "__main__":

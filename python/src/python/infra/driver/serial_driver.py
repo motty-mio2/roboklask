@@ -85,6 +85,8 @@ class SerialDriver:
 
             resp = self.predict.predict(ba, st)
 
+            print(resp)
+
             self.send_target(resp)
 
     def stop(self) -> None:
