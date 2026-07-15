@@ -21,8 +21,9 @@ const uint8_t* generate_matrix(const float& x, const float& y) {
   static uint8_t led[104];
   memset(led, 0, sizeof(led));
 
-  int xx = int(std::round(std::min(std::max(y, -1.0f), 1.0f) * HALF_WIDTH + HALF_WIDTH));
-  int yy = int(std::round(std::min(std::max(x, 0.0f), 1.0f) * (HEIGHT - 1)));
+  // [-1.0f, 1.0f] を [0.0f, 1.0f] に変換してから、インデックス範囲にマッピング
+  int xx = int(std::round(((std::min(std::max(y, -1.0f), 1.0f) + 1.0f) / 2.0f) * (WIDTH - 1)));
+  int yy = int(std::round(((std::min(std::max(x, -1.0f), 1.0f) + 1.0f) / 2.0f) * (HEIGHT - 1)));
 
   led[xx + yy * WIDTH] = 1;
 
