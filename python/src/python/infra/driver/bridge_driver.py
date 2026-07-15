@@ -40,4 +40,5 @@ class BridgeDriver(BaseDriver):
 
     def run(self) -> None:
         """Run the BridgeDriver."""
+        print("Starting BridgeDriver...")
         App.run(user_loop=self.loop)
