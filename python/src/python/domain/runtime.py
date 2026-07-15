@@ -39,7 +39,11 @@ class Runtime:
         f_input.extend([coord for s in self.past_striker for coord in (s.x, s.y)])
 
         result = self.session.run([output_.name], {input_.name: np.array([f_input], dtype=np.float32)})
-        resp = RobotXY(x=result[0][0][0], y=result[0][0][1])
+        pred_x = float(result[0][0][0])
+        pred_y = float(result[0][0][1])
+        clamped_x = max(-1.0, min(1.0, pred_x))
+        clamped_y = max(-1.0, min(1.0, pred_y))
+        resp = RobotXY(x=clamped_x, y=clamped_y)
 
         return resp
 
