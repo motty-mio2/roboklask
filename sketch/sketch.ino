@@ -30,7 +30,7 @@ void setup() {
   matrix.setGrayscaleBits(1);
   matrix.clear();
   Bridge.begin();
-  Bridge.provide("xy", [](float x, float y) {
+  Bridge.provide("py2mcu", [](float x, float y) {
     k_mutex_lock(&xy_mutex, K_FOREVER);
     new_head_pos.x = constrain(x, 0.0f, 1.0f);
     new_head_pos.y = constrain(y, 0.0f, 1.0f);
