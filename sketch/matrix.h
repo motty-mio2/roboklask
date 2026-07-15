@@ -13,14 +13,14 @@ static int animation_current_frame = 0;
 static unsigned long animation_next_time = 0;
 
 constexpr uint8_t WIDTH = 13;
-constexpr uint8_t HALF_WIDTH = WIDTH / 2;
+constexpr int8_t HALF_WIDTH = WIDTH / 2;
 constexpr uint8_t HEIGHT = 8;
 
 const uint8_t* generate_matrix(const float& x, const float& y) {
   static uint8_t led[104];
   memset(led, 0, sizeof(led));
 
-  int xx = int(std::min(std::max(y + 1.0f, 0.0f), 2.0f) * WIDTH);
+  int xx = int(std::min(std::max(y, -1.0f), 1.0f) * HALF_WIDTH + HALF_WIDTH);
   int yy = int(std::min(std::max(x, 0.0f), 1.0f) * (HEIGHT - 1));
 
   led[xx + yy * WIDTH] = 1;
