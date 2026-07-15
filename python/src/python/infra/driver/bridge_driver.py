@@ -21,23 +21,19 @@ class BridgeDriver(BaseDriver):
 
     def py2mcu(self, command: str, data: RobotXY) -> Any:
         """Call a command on the Arduino Bridge."""
-        self.logger(f"Calling command: {command} with data: {data}")
         self.bridge.call(command, data.x, data.y)  # type: ignore
 
     def mcu2py(self, st_x: float, st_y: float) -> Any:
-        self.logger(f"Received from MCU: x={st_x:.2f}, y={st_y:.2f}")
         with self.shared.lock:
             self.shared.striker = RobotXY(x=st_x, y=st_y)
 
     def loop(self) -> None:
-        print("BridgeDriver loop running...")
         time.sleep(0.03)  # 30Hz
         with self.shared.lock:
             st = self.shared.striker
             ba = self.shared.ball
 
         resp = self.predict.predict(ba, st)
-        print(f"Predicted response: {resp}")
         self.py2mcu("py2mcu", resp)
 
     def run(self) -> None:
