@@ -36,6 +36,7 @@ class BridgeDriver(BaseDriver):
             ba = self.shared.ball
 
         resp = self.predict.predict(ba, st)
+        print(f"Predicted response: {resp}")
         self.py2mcu("py2mcu", resp)
 
     def run(self) -> None:
