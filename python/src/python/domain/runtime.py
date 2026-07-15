@@ -11,11 +11,13 @@ from python.domain.model.robot_xy import RobotXY
 class Runtime:
     MAX_LEN = 3
 
-    def __init__(self) -> None:
-        self.model_path = (
-            Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share")) / "roboklask" / "klask_ppo_model.onnx"
-        )
-        self.session = ort.InferenceSession(self.model_path)
+    def __init__(self, use_onnx: bool = True) -> None:
+        self.use_onnx = use_onnx
+        if self.use_onnx:
+            self.model_path = (
+                Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share")) / "roboklask" / "klask_ppo_model.onnx"
+            )
+            self.session = ort.InferenceSession(self.model_path)
 
         self.past_striker: collections.deque[RobotXY] = collections.deque(
             [RobotXY() for _ in range(self.MAX_LEN)],
@@ -30,6 +32,12 @@ class Runtime:
     def predict(self, ball: RobotXY, striker: RobotXY) -> RobotXY:
         self.past_ball.append(ball)
         self.past_striker.append(striker)
+
+        if not self.use_onnx:
+            return RobotXY(
+                x=max(-1.0, min(1.0, ball.x)),
+                y=max(-1.0, min(1.0, ball.y))
+            )
 
         input_ = self.session.get_inputs()[0]
         output_ = self.session.get_outputs()[0]

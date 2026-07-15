@@ -22,6 +22,11 @@ def parse_args() -> argparse.Namespace:
         default="dummy",
         help="Transmitter type: zenoh or dummy",
     )
+    parser.add_argument(
+        "--no-onnx",
+        action="store_true",
+        help="Disable ONNX model inference and use dummy coordinates",
+    )
     return parser.parse_args()
 
 
@@ -29,15 +34,16 @@ def main() -> None:
     args = parse_args()
 
     sh = Shared()
+    use_onnx = not args.no_onnx
 
     if args.driver == "serial":
         from python.infra.driver.serial_driver import SerialDriver
 
-        driver = SerialDriver(shared=sh)
+        driver = SerialDriver(shared=sh, use_onnx=use_onnx)
     elif args.driver == "bridge":
         from python.infra.driver.bridge_driver import BridgeDriver
 
-        driver = BridgeDriver(shared=sh)
+        driver = BridgeDriver(shared=sh, use_onnx=use_onnx)
     else:
         raise ValueError(f"Unknown driver: {args.driver}")
 

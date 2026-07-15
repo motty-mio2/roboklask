@@ -10,13 +10,13 @@ from python.domain.runtime import Runtime
 
 
 class SerialDriver:
-    def __init__(self, shared: Shared) -> None:
+    def __init__(self, shared: Shared, use_onnx: bool = True) -> None:
         sc = SerialConfig()
 
         self.port = sc.serial_port
         self.baudrate = sc.baudrate
         self.shared = shared
-        self.predict = Runtime()
+        self.predict = Runtime(use_onnx=use_onnx)
 
         # self.serial_connection = None
 

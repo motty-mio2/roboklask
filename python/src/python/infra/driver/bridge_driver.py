@@ -12,11 +12,11 @@ from python.domain.runtime import Runtime
 class BridgeDriver(BaseDriver):
     """BridgeDriver class to handle communication with the Arduino Bridge."""
 
-    def __init__(self, shared: Shared) -> None:
+    def __init__(self, shared: Shared, use_onnx: bool = True) -> None:
         """Initialize the BridgeDriver."""
         self.shared = shared
         self.bridge = Bridge()
-        self.predict = Runtime()
+        self.predict = Runtime(use_onnx=use_onnx)
         Bridge.provide("mcu2py", self.mcu2py)
 
     def py2mcu(self, command: str, data: RobotXY) -> Any:
