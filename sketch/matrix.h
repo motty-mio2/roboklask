@@ -20,7 +20,7 @@ const uint8_t* generate_matrix(const float& x, const float& y) {
   static uint8_t led[104];
   memset(led, 0, sizeof(led));
 
-  int xx = int(std::min(std::max(y, -1.0f), 1.0f) * WIDTH);
+  int xx = int(std::min(std::max(y + 1.0f, 0.0f), 2.0f) * HALF_WIDTH);
   int yy = int(std::min(std::max(x, 0.0f), 1.0f) * (HEIGHT - 1));
 
   led[xx + yy * WIDTH] = 1;
