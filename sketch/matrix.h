@@ -23,7 +23,7 @@ const uint8_t* generate_matrix(const float& x, const float& y) {
   int xx = int((std::min(std::max(y, -1.0f), 1.0f) + 1.0f) / 2 * (WIDTH - 1));
   int yy = int(std::min(std::max(x, 0.0f), 1.0f) * (HEIGHT - 1));
 
-  led[1] = 1;
+  led[12] = 1;
   // led[xx + yy * WIDTH] = 1;
 
   return led;
