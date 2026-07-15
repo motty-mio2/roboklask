@@ -30,6 +30,7 @@ class BridgeDriver(BaseDriver):
             self.shared.striker = RobotXY(x=st_x, y=st_y)
 
     def loop(self) -> None:
+        print("BridgeDriver loop running...")
         time.sleep(0.03)  # 30Hz
         with self.shared.lock:
             st = self.shared.striker

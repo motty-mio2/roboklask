@@ -3,7 +3,7 @@
 import argparse
 import random
 import time
-from concurrent.futures import ThreadPoolExecutor
+import threading
 
 from python.domain.model.shared import Shared
 from python.infra.transmitter.zenoh_transmitter import ZenohTransmitter
@@ -37,16 +37,24 @@ def main() -> None:
         raise ValueError(f"Unknown driver: {args.driver}")
     z = ZenohTransmitter(shared=sh)
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        executor.submit(driver.run)
-        executor.submit(z.spin)
+    def dummy_ball_updater() -> None:
+        while True:
+            time.sleep(1)
+            with sh.lock:
+                sh.ball.x = random.uniform(-1.0, 1.0)
+                sh.ball.y = random.uniform(-1.0, 1.0)
+                print(f"Target: {sh.ball}, Feedback: {sh.striker}", flush=True)
 
-    while True:
-        time.sleep(1)
-        with sh.lock:
-            sh.ball.x = random.uniform(-1.0, 1.0)
-            sh.ball.y = random.uniform(-1.0, 1.0)
-            print(f"Target: {sh.ball}, Feedback: {sh.striker}")
+    t_zenoh = threading.Thread(target=z.spin, name="ZenohTransmitterThread", daemon=True)
+    t_dummy = threading.Thread(target=dummy_ball_updater, name="DummyBallUpdaterThread", daemon=True)
+
+    t_zenoh.start()
+    t_dummy.start()
+
+    try:
+        driver.run()
+    except KeyboardInterrupt:
+        print("Shutting down...", flush=True)
 
 
 if __name__ == "__main__":
