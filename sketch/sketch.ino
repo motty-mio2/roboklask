@@ -36,6 +36,10 @@ void setup() {
     new_head_pos.y = constrain(y, -1.0f, 1.0f);
     k_mutex_unlock(&xy_mutex);
   });
+  Bridge.provide("ball", [](float x, float y) {
+    // 受信したボール位置をそのまま表示する
+    xy(matrix, x, y);
+  });
   Monitor.begin();
 #elif defined(ARDUINO_MINIMA)
   bridge.begin();
@@ -74,7 +78,6 @@ void loop() {
   k_mutex_lock(&xy_mutex, K_FOREVER);
   Position vis_new_head_pos = new_head_pos;
   k_mutex_unlock(&xy_mutex);
-  xy(matrix, vis_new_head_pos.x, vis_new_head_pos.y);
   // 20msごとにPython側へ現在XY位置を通知
   // unsigned long now = millis();
   // if (now - lastReportMs >= 20) {
