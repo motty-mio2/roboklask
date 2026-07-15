@@ -13,7 +13,7 @@ static int animation_current_frame = 0;
 static unsigned long animation_next_time = 0;
 
 constexpr uint8_t WIDTH = 13;
-constexpr float HALF_WIDTH = (float)(WIDTH - 1) / 4.0f;
+constexpr float HALF_WIDTH = (float)(WIDTH - 1) / 2.0f;
 constexpr uint8_t HEIGHT = 8;
 
 const uint8_t* generate_matrix(const float& x, const float& y) {
