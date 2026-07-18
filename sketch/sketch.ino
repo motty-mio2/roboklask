@@ -66,10 +66,16 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);
   xyControl.homing();
   digitalWrite(LED_BUILTIN, LOW);  // 完了したら一旦消灯
-  xyControl.gotoCenter();
+  // xyControl.gotoCenter();
 }
 
 void loop() {
+  while (true) {
+    digitalWrite(LED_BUILTIN, true);
+    sleep(100);
+    digitalWrite(LED_BUILTIN, false);
+    sleep(100);
+  }
   // 1. モーターのステップを更新（最優先・毎回実行）
   xyControl.run();
   xyControl.getCurrentXY(head_pos);
