@@ -40,7 +40,7 @@ void setup() {
     // 受信したボール位置をそのまま表示する
     xy(matrix, x, y);
   });
-  Monitor.begin();
+  Monitor.begin(115200);
 #elif defined(ARDUINO_MINIMA)
   bridge.begin();
 #endif
@@ -63,9 +63,13 @@ void setup() {
   digitalWrite(M2, setM2);
 
   // キャリブレーション中はLEDを点灯
+  Monitor.println("Homing ...");
   digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
   xyControl.homing();
+  Monitor.println("Homing OK");
+
   digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
+  Monitor.print("Go to center ...");
   xyControl.gotoCenter();
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
