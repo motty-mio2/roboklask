@@ -46,7 +46,7 @@ void setup() {
 #endif
 
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);  // キャリブレーション完了前は消灯
+  digitalWrite(LED_BUILTIN, LOW); // キャリブレーション完了前は消灯
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -63,19 +63,13 @@ void setup() {
   digitalWrite(M2, setM2);
 
   // キャリブレーション中はLEDを点灯
-  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(LED_BUILTIN, false);
   xyControl.homing();
-  digitalWrite(LED_BUILTIN, LOW);  // 完了したら一旦消灯
-  // xyControl.gotoCenter();
+  digitalWrite(LED_BUILTIN, true); // 完了したら一旦消灯
+  xyControl.gotoCenter();
 }
 
 void loop() {
-  while (true) {
-    digitalWrite(LED_BUILTIN, true);
-    sleep(100);
-    digitalWrite(LED_BUILTIN, false);
-    sleep(100);
-  }
   // 1. モーターのステップを更新（最優先・毎回実行）
   xyControl.run();
   xyControl.getCurrentXY(head_pos);
