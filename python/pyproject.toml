@@ -50,6 +50,7 @@ check = [
 cmd = """
 uv export \
 --no-hashes --no-dev \
+--no-emit-project \
 --prune arduino-app-bricks \
 --format requirements.txt --output-file requirements.txt \
 """
