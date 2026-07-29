@@ -69,8 +69,9 @@ void setup() {
   Monitor.println("Homing OK");
 
   digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
-  Monitor.print("Go to center ...");
+  Monitor.println("Go to center ...");
   xyControl.gotoCenter();
+  Monitor.println("Center OK");
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
   new_head_pos.x = 0.0f;
