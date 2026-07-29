@@ -46,7 +46,7 @@ void setup() {
 #endif
 
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);  // キャリブレーション完了前は消灯
+  digitalWrite(LED_BUILTIN, HIGH);  // キャリブレーション完了前は消灯 (HIGH=OFF)
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -63,10 +63,14 @@ void setup() {
   digitalWrite(M2, setM2);
 
   // キャリブレーション中はLEDを点灯
-  digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
   xyControl.homing();
-  digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯
+  digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
   xyControl.gotoCenter();
+
+  // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
+  new_head_pos.x = 0.0f;
+  new_head_pos.y = 1.0f;
 }
 
 void loop() {
