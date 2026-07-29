@@ -61,6 +61,11 @@ void setup() {
     new_head_pos.x = constrain(x, 0.0f, 1.0f);
     new_head_pos.y = constrain(y, -1.0f, 1.0f);
     k_mutex_unlock(&xy_mutex);
+
+    // データ受信のたびにLEDをトグルして、受信割り込みの動作を目視確認する
+    static bool ledState = false;
+    ledState = !ledState;
+    digitalWrite(LED_BUILTIN, ledState ? LOW : HIGH); // LOW=ON, HIGH=OFF
   });
   Bridge.provide("ball", [](float x, float y) {
     // 受信したボール位置をそのまま表示する
@@ -96,13 +101,13 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
   Serial.println("Homing finished.");
 
-  blinkLED(4); // 4回点滅: Homing完了、gotoCenter直前
+  blinkLED(4); // 4回点滅: Homing完了、loop突入直前
 
-  Serial.println("Moving to center...");
-  xyControl.gotoCenter();
-  Serial.println("Center reached.");
+  Serial.println("Moving to center (skipped for debug)...");
+  // xyControl.gotoCenter();
+  Serial.println("Center reached (skipped for debug).");
 
-  blinkLED(5); // 5回点滅: Center移動完了、setup正常終了
+  blinkLED(5); // 5回点滅: setup正常終了
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
   new_head_pos.x = 0.0f;
