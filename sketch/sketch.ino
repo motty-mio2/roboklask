@@ -46,7 +46,7 @@ void setup() {
 #endif
 
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW); // キャリブレーション完了前は消灯
+  digitalWrite(LED_BUILTIN, LOW);  // キャリブレーション完了前は消灯
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -63,9 +63,9 @@ void setup() {
   digitalWrite(M2, setM2);
 
   // キャリブレーション中はLEDを点灯
-  digitalWrite(LED_BUILTIN, false);
+  digitalWrite(LED_BUILTIN, LOW);
   xyControl.homing();
-  digitalWrite(LED_BUILTIN, true); // 完了したら一旦消灯
+  digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯
   xyControl.gotoCenter();
 }
 
