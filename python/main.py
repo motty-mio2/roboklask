@@ -1,8 +1,6 @@
 # Initialize WebUI
 # ui = WebUI()
 import argparse
-import random
-import time
 import threading
 
 from python.domain.model.shared import Shared
@@ -58,11 +56,7 @@ def main() -> None:
     else:
         raise ValueError(f"Unknown transmitter: {args.transmitter}")
 
-    t_transmitter = threading.Thread(
-        target=transmitter.spin,
-        name="TransmitterThread",
-        daemon=True
-    )
+    t_transmitter = threading.Thread(target=transmitter.spin, name="TransmitterThread", daemon=True)
 
     t_transmitter.start()
 

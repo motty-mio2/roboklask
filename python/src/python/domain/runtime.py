@@ -15,7 +15,9 @@ class Runtime:
         self.use_onnx = use_onnx
         if self.use_onnx:
             self.model_path = (
-                Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share")) / "roboklask" / "klask_ppo_model.onnx"
+                Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+                / "roboklask"
+                / "klask_ppo_model.onnx"
             )
             self.session = ort.InferenceSession(self.model_path)
 
@@ -34,10 +36,7 @@ class Runtime:
         self.past_striker.append(striker)
 
         if not self.use_onnx:
-            return RobotXY(
-                x=max(-1.0, min(1.0, ball.x)),
-                y=max(-1.0, min(1.0, ball.y))
-            )
+            return RobotXY(x=max(-1.0, min(1.0, ball.x)), y=max(-1.0, min(1.0, ball.y)))
 
         input_ = self.session.get_inputs()[0]
         output_ = self.session.get_outputs()[0]

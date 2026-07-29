@@ -29,10 +29,7 @@ class DummyTransmitter:
                 if now - last_update_time >= 1.0 / 30.0:
                     last_update_time = now
                     with self.shared.lock:
-                        self.shared.ball = RobotXY(
-                            x=random.uniform(-1.0, 1.0),
-                            y=random.uniform(-1.0, 1.0)
-                        )
+                        self.shared.ball = RobotXY(x=random.uniform(-1.0, 1.0), y=random.uniform(-1.0, 1.0))
                 time.sleep(0.01)
         except KeyboardInterrupt:
             pass
