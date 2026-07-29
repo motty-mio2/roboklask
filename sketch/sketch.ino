@@ -35,11 +35,27 @@ void blinkLED(int count) {
 }
 
 void setup() {
+  // 最優先でLEDピンを初期化して消灯(HIGH=OFF)にする
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+
+  // PC接続用シリアルデバッグの開始
+  Serial.begin(115200);
+  for (int i = 0; i < 10 && !Serial; i++) {
+    delay(100);
+  }
+  Serial.println("MCU Started.");
+
+  blinkLED(1); // 1回点滅: setup開始成功 (消灯で終了)
+
 #if defined(ARDUINO_UNO_Q)
   matrix.begin();
   matrix.setGrayscaleBits(1);
   matrix.clear();
+  
+  // Bridgeの開始 (Pythonアプリとの通信接続待ちが発生する可能性あり)
   Bridge.begin();
+  
   Bridge.provide("py2mcu", [](float x, float y) {
     k_mutex_lock(&xy_mutex, K_FOREVER);
     new_head_pos.x = constrain(x, 0.0f, 1.0f);
@@ -55,17 +71,7 @@ void setup() {
   bridge.begin();
 #endif
 
-  // PC接続用シリアルデバッグの開始
-  Serial.begin(115200);
-  for (int i = 0; i < 10 && !Serial; i++) {
-    delay(100);
-  }
-  Serial.println("MCU Started.");
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);  // キャリブレーション完了前は消灯 (HIGH=OFF)
-
-  blinkLED(1); // 1回点滅: 初期化成功
+  blinkLED(2); // 2回点滅: Bridge / 通信の初期化成功
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -81,7 +87,7 @@ void setup() {
   pinMode(M2, OUTPUT);
   digitalWrite(M2, setM2);
 
-  blinkLED(2); // 2回点滅: ピン設定完了、Homing直前
+  blinkLED(3); // 3回点滅: ピン設定完了、Homing直前
 
   // キャリブレーション中はLEDを点灯
   digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
@@ -90,13 +96,13 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
   Serial.println("Homing finished.");
 
-  blinkLED(3); // 3回点滅: Homing完了、gotoCenter直前
+  blinkLED(4); // 4回点滅: Homing完了、gotoCenter直前
 
   Serial.println("Moving to center...");
   xyControl.gotoCenter();
   Serial.println("Center reached.");
 
-  blinkLED(4); // 4回点滅: Center移動完了、setup正常終了
+  blinkLED(5); // 5回点滅: Center移動完了、setup正常終了
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
   new_head_pos.x = 0.0f;
