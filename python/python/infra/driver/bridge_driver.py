@@ -21,7 +21,7 @@ class BridgeDriver(BaseDriver):
 
     def py2mcu(self, command: str, data: RobotXY) -> Any:
         """Call a command on the Arduino Bridge."""
-        self.bridge.call(command, data.x, data.y)  # type: ignore
+        self.bridge.call(command, data.x, data.y)
 
     def mcu2py(self, st_x: float, st_y: float) -> Any:
         with self.shared.lock:
@@ -35,7 +35,7 @@ class BridgeDriver(BaseDriver):
 
         resp = self.predict.predict(ba, st)
         self.py2mcu("py2mcu", resp)
-        self.bridge.call("ball", ba.x, ba.y)  # type: ignore
+        self.bridge.call("ball", ba.x, ba.y)
 
     def run(self) -> None:
         """Run the BridgeDriver."""

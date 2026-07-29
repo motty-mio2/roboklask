@@ -26,7 +26,7 @@ Position head_pos;
 
 void blinkLED(int count) {
   for (int i = 0; i < count; i++) {
-    digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
+    digitalWrite(LED_BUILTIN, LOW); // 点灯 (LOW=ON)
     delay(100);
     digitalWrite(LED_BUILTIN, HIGH); // 消灯 (HIGH=OFF)
     delay(100);
@@ -52,10 +52,10 @@ void setup() {
   matrix.begin();
   matrix.setGrayscaleBits(1);
   matrix.clear();
-  
+
   // Bridgeの開始 (Pythonアプリとの通信接続待ちが発生する可能性あり)
   Bridge.begin();
-  
+
   Bridge.provide("py2mcu", [](float x, float y) {
     k_mutex_lock(&xy_mutex, K_FOREVER);
     new_head_pos.x = constrain(x, 0.0f, 1.0f);
@@ -95,10 +95,10 @@ void setup() {
   blinkLED(3); // 3回点滅: ピン設定完了、Homing直前
 
   // キャリブレーション中はLEDを点灯
-  digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
+  digitalWrite(LED_BUILTIN, LOW); // 点灯 (LOW=ON)
   Serial.println("Starting homing...");
   xyControl.homing();
-  digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
+  digitalWrite(LED_BUILTIN, HIGH); // 完了したら一旦消灯 (HIGH=OFF)
   Serial.println("Homing finished.");
 
   blinkLED(4); // 4回点滅: Homing完了、loop突入直前

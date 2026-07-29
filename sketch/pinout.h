@@ -25,4 +25,4 @@ constexpr uint8_t SW_X = 21;
 constexpr uint8_t SW_Y = 20;
 #endif
 
-#endif  // PINOUT_H
+#endif // PINOUT_H

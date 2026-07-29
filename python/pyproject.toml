@@ -43,7 +43,7 @@ lint = [
   { cmd = "ruff check" },
 ]
 check = [
-  { cmd = "mypy src" },
+  { cmd = "mypy python" },
 ]
 
 [tool.poe.tasks.export]
@@ -63,3 +63,6 @@ extend-select = ["E", "F", "W", "I", "B", "RUF", "UP", "TID252"]
 
 [tool.uv.sources]
 arduino-app-bricks = { git = "https://github.com/arduino/app-bricks-py", tag = "release/0.10.1" }
+
+[tool.uv.build-backend]
+module-root = "."

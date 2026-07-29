@@ -4,7 +4,7 @@ import struct
 import serial
 
 from python.domain.config import SerialConfig
-from python.domain.driver.base import RobotXY
+from python.domain.model.robot_xy import RobotXY
 from python.domain.model.shared import Shared
 from python.domain.runtime import Runtime
 
