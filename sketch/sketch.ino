@@ -26,9 +26,9 @@ Position head_pos;
 
 void blinkLED(int count) {
   for (int i = 0; i < count; i++) {
-    digitalWrite(LED_BUILTIN, LOW); // 点灯 (LOW=ON)
+    digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
     delay(100);
-    digitalWrite(LED_BUILTIN, HIGH); // 消灯 (HIGH=OFF)
+    digitalWrite(LED_BUILTIN, HIGH);  // 消灯 (HIGH=OFF)
     delay(100);
   }
   delay(500);
@@ -46,7 +46,7 @@ void setup() {
   }
   Serial.println("MCU Started.");
 
-  blinkLED(1); // 1回点滅: setup開始成功 (消灯で終了)
+  blinkLED(1);  // 1回点滅: setup開始成功 (消灯で終了)
 
 #if defined(ARDUINO_UNO_Q)
   matrix.begin();
@@ -65,7 +65,7 @@ void setup() {
     // データ受信のたびにLEDをトグルして、受信割り込みの動作を目視確認する
     static bool ledState = false;
     ledState = !ledState;
-    digitalWrite(LED_BUILTIN, ledState ? LOW : HIGH); // LOW=ON, HIGH=OFF
+    digitalWrite(LED_BUILTIN, ledState ? LOW : HIGH);  // LOW=ON, HIGH=OFF
   });
   Bridge.provide("ball", [](float x, float y) {
     // 受信したボール位置をそのまま表示する
@@ -76,7 +76,7 @@ void setup() {
   bridge.begin();
 #endif
 
-  blinkLED(2); // 2回点滅: Bridge / 通信の初期化成功
+  blinkLED(2);  // 2回点滅: Bridge / 通信の初期化成功
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -92,22 +92,22 @@ void setup() {
   pinMode(M2, OUTPUT);
   digitalWrite(M2, setM2);
 
-  blinkLED(3); // 3回点滅: ピン設定完了、Homing直前
+  blinkLED(3);  // 3回点滅: ピン設定完了、Homing直前
 
   // キャリブレーション中はLEDを点灯
-  digitalWrite(LED_BUILTIN, LOW); // 点灯 (LOW=ON)
+  digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
   Serial.println("Starting homing...");
   xyControl.homing();
-  digitalWrite(LED_BUILTIN, HIGH); // 完了したら一旦消灯 (HIGH=OFF)
+  digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
   Serial.println("Homing finished.");
 
-  blinkLED(4); // 4回点滅: Homing完了、loop突入直前
+  blinkLED(4);  // 4回点滅: Homing完了、loop突入直前
 
   Serial.println("Moving to center (skipped for debug)...");
   // xyControl.gotoCenter();
   Serial.println("Center reached (skipped for debug).");
 
-  blinkLED(5); // 5回点滅: setup正常終了
+  blinkLED(5);  // 5回点滅: setup正常終了
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
   new_head_pos.x = 0.0f;
@@ -116,8 +116,8 @@ void setup() {
 
 void loop() {
   // 1. モーターのステップを更新（最優先・毎回実行）
-  xyControl.run();
-  xyControl.getCurrentXY(head_pos);
+  // xyControl.run();
+  // xyControl.getCurrentXY(head_pos);
 
 #if defined(ARDUINO_UNO_Q)
   // 20msごとにPython側へ現在XY位置を通知
