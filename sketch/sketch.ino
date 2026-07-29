@@ -24,6 +24,16 @@ long targetPos = 1000;
 Position new_head_pos;
 Position head_pos;
 
+void blinkLED(int count) {
+  for (int i = 0; i < count; i++) {
+    digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
+    delay(100);
+    digitalWrite(LED_BUILTIN, HIGH); // 消灯 (HIGH=OFF)
+    delay(100);
+  }
+  delay(500);
+}
+
 void setup() {
 #if defined(ARDUINO_UNO_Q)
   matrix.begin();
@@ -40,13 +50,22 @@ void setup() {
     // 受信したボール位置をそのまま表示する
     xy(matrix, x, y);
   });
-  Monitor.begin(115200);
+  // Monitor.begin();  // クラッシュ回避のためコメントアウト
 #elif defined(ARDUINO_MINIMA)
   bridge.begin();
 #endif
 
+  // PC接続用シリアルデバッグの開始
+  Serial.begin(115200);
+  for (int i = 0; i < 10 && !Serial; i++) {
+    delay(100);
+  }
+  Serial.println("MCU Started.");
+
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);  // キャリブレーション完了前は消灯 (HIGH=OFF)
+
+  blinkLED(1); // 1回点滅: 初期化成功
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -62,16 +81,22 @@ void setup() {
   pinMode(M2, OUTPUT);
   digitalWrite(M2, setM2);
 
-  // キャリブレーション中はLEDを点灯
-  Monitor.println("Homing ...");
-  digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
-  xyControl.homing();
-  Monitor.println("Homing OK");
+  blinkLED(2); // 2回点滅: ピン設定完了、Homing直前
 
+  // キャリブレーション中はLEDを点灯
+  digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
+  Serial.println("Starting homing...");
+  xyControl.homing();
   digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
-  Monitor.println("Go to center ...");
+  Serial.println("Homing finished.");
+
+  blinkLED(3); // 3回点滅: Homing完了、gotoCenter直前
+
+  Serial.println("Moving to center...");
   xyControl.gotoCenter();
-  Monitor.println("Center OK");
+  Serial.println("Center reached.");
+
+  blinkLED(4); // 4回点滅: Center移動完了、setup正常終了
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
   new_head_pos.x = 0.0f;
