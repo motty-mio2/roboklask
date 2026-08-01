@@ -61,11 +61,6 @@ void setup() {
     new_head_pos.x = constrain(x, 0.0f, 1.0f);
     new_head_pos.y = constrain(y, -1.0f, 1.0f);
     k_mutex_unlock(&xy_mutex);
-
-    // データ受信のたびにLEDをトグルして、受信割り込みの動作を目視確認する
-    static bool ledState = false;
-    ledState = !ledState;
-    digitalWrite(LED_BUILTIN, ledState ? LOW : HIGH);  // LOW=ON, HIGH=OFF
   });
   Bridge.provide("ball", [](float x, float y) {
     // 受信したボール位置をそのまま表示する
@@ -114,6 +109,7 @@ void setup() {
   new_head_pos.y = 1.0f;
 }
 
+Position local_new_head_pos;
 void loop() {
   // 1. モーターのステップを更新（最優先・毎回実行）
   // xyControl.run();
@@ -126,30 +122,20 @@ void loop() {
     lastReportMs = now;
     Bridge.call("mcu2py", head_pos.x, head_pos.y);
   }
+  k_mutex_lock(&xy_mutex, K_FOREVER);
+  local_new_head_pos = new_head_pos;
+  k_mutex_unlock(&xy_mutex);
+  xyControl.move(local_new_head_pos);
 #elif defined(ARDUINO_MINIMA)
   // 2. シリアルポートからボール位置を受信し、現在XY位置を返送（Minima専用）
   if (bridge.receive(new_head_pos)) {
     // 【通信確認用デバッグ】データを受信するたびにLEDをチカチカ点滅させる
     static bool ledState = false;
     ledState = !ledState;
-    digitalWrite(LED_BUILTIN, ledState ? HIGH : LOW);
-
-    // 送信データ範囲 [0.0, 1.0] は XYControl.move の入力範囲 [0.0, 1.0]
-    // にそのまま対応
   }
 
   // 現在のXY位置をUARTで送信（SerialBridge内で20ms間引き）
   bridge.sendPosition(head_pos);
-#endif
-
-  Position local_new_head_pos;
-#if defined(ARDUINO_UNO_Q)
-  k_mutex_lock(&xy_mutex, K_FOREVER);
-  local_new_head_pos = new_head_pos;
-  k_mutex_unlock(&xy_mutex);
-#elif defined(ARDUINO_MINIMA)
-  local_new_head_pos = new_head_pos;
-#endif
-
   xyControl.move(local_new_head_pos);
+#endif
 }
