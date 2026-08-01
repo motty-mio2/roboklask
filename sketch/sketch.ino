@@ -34,6 +34,7 @@ void blinkLED(int count) {
   delay(500);
 }
 
+unsigned long long now = millis();
 unsigned long long last_update_ms = millis();
 constexpr uint8_t CYCLE_ms = 33;
 
@@ -116,20 +117,17 @@ Position local_new_head_pos;
 void loop() {
   // xyControl.run();
   now = millis();
-  if (now - last_update_ms >= CYCLE_ms) {
-    last_update_ms = now;
+  if (now - last_update_ms < CYCLE_ms) {
+    return;
   }
-  // 1. モーターのステップを更新（最優先・毎回実行）
-  // xyControl.run();
-  // xyControl.getCurrentXY(head_pos);
+
+  last_update_ms = now;
+
+  xyControl.getCurrentXY(head_pos);
 
 #if defined(ARDUINO_UNO_Q)
-  // 20msごとにPython側へ現在XY位置を通知
-  unsigned long now = millis();
-  if (now - lastReportMs >= 20) {
-    lastReportMs = now;
-    Bridge.call("mcu2py", head_pos.x, head_pos.y);
-  }
+  Bridge.call("mcu2py", head_pos.x, head_pos.y);
+
   k_mutex_lock(&xy_mutex, K_FOREVER);
   local_new_head_pos = new_head_pos;
   k_mutex_unlock(&xy_mutex);
