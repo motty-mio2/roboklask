@@ -34,6 +34,9 @@ void blinkLED(int count) {
   delay(500);
 }
 
+unsigned long long last_update_ms = millis();
+constexpr uint8_t CYCLE_ms = 33;
+
 void setup() {
   // 最優先でLEDピンを初期化して消灯(HIGH=OFF)にする
   pinMode(LED_BUILTIN, OUTPUT);
@@ -66,7 +69,7 @@ void setup() {
     // 受信したボール位置をそのまま表示する
     xy(matrix, x, y);
   });
-  // Monitor.begin();  // クラッシュ回避のためコメントアウト
+// Monitor.begin();  // クラッシュ回避のためコメントアウト
 #elif defined(ARDUINO_MINIMA)
   bridge.begin();
 #endif
@@ -111,6 +114,11 @@ void setup() {
 
 Position local_new_head_pos;
 void loop() {
+  // xyControl.run();
+  now = millis();
+  if (now - last_update_ms >= CYCLE_ms) {
+    last_update_ms = now;
+  }
   // 1. モーターのステップを更新（最優先・毎回実行）
   // xyControl.run();
   // xyControl.getCurrentXY(head_pos);
