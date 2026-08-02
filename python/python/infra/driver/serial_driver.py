@@ -1,3 +1,4 @@
+import logging
 import math
 import struct
 
@@ -7,6 +8,8 @@ from python.domain.config import SerialConfig
 from python.domain.model.robot_xy import RobotXY
 from python.domain.model.shared import Shared
 from python.domain.runtime import Runtime
+
+logger = logging.getLogger(__name__)
 
 
 class SerialDriver:
@@ -35,10 +38,11 @@ class SerialDriver:
             # - X position target: float (4 bytes, Little-Endian)
             # - Y position target: float (4 bytes, Little-Endian)
             packet = struct.pack("<Bff", 0xAA, target_x, target_y)
+            logger.debug(f"TX target -> MCU (Serial): x={target_x:.4f}, y={target_y:.4f}")
             self.ser.write(packet)
             self.ser.flush()
         except Exception as e:
-            print(f"Error writing binary packet to serial port {self.port}: {e}")
+            logger.error(f"Error writing binary packet to serial port {self.port}: {e}")
 
     def read_feedback(self) -> RobotXY | None:
         if not self.ser.is_open:
@@ -58,18 +62,21 @@ class SerialDriver:
                 if data[idx] == 0xAA:
                     x_val, y_val = struct.unpack("<ff", data[idx + 1 : idx + 9])
                     if not (math.isnan(x_val) or math.isnan(y_val) or math.isinf(x_val) or math.isinf(y_val)):
-                        return RobotXY(
+                        feedback = RobotXY(
                             x=max(-1.0, min(1.0, float(x_val))),
                             y=max(-1.0, min(1.0, float(y_val))),
                         )
+                        logger.debug(f"RX feedback <- MCU (Serial): x={feedback.x:.4f}, y={feedback.y:.4f}")
+                        return feedback
                 idx -= 1
 
         except Exception as e:
-            print(f"Error reading feedback from serial port: {e}")
+            logger.error(f"Error reading feedback from serial port: {e}")
 
         return None
 
     def run(self) -> None:
+        logger.info(f"Starting SerialDriver on {self.port} at {self.baudrate}...")
         while True:
             fb = self.read_feedback()
 
@@ -84,15 +91,12 @@ class SerialDriver:
                     ba = self.shared.ball
 
             resp = self.predict.predict(ba, st)
-
-            print(resp)
-
             self.send_target(resp)
 
     def stop(self) -> None:
         if self.ser.is_open:
             try:
                 self.ser.close()
-                print(f"MCU Serial Connection closed port {self.port}.")
+                logger.info(f"MCU Serial Connection closed port {self.port}.")
             except Exception as e:
-                print(f"Error closing serial port {self.port}: {e}")
+                logger.error(f"Error closing serial port {self.port}: {e}")

@@ -1,6 +1,7 @@
 # Initialize WebUI
 # ui = WebUI()
 import argparse
+import logging
 import threading
 
 from python.domain.model.shared import Shared
@@ -25,11 +26,22 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Disable ONNX model inference and use dummy coordinates",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging of sent and received coordinates",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+
+    log_level = logging.DEBUG if args.debug else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
 
     sh = Shared()
     use_onnx = not args.no_onnx
