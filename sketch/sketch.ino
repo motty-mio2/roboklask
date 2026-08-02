@@ -92,7 +92,6 @@ void setup() {
 
   // 3. モーターのすべての初期位置合わせが完了した後に、通信を開始する
 #if defined(ARDUINO_UNO_Q)
-  Serial.println("Starting Bridge...");
   Bridge.begin();
 
   Bridge.provide("py2mcu", [](float x, float y) {
@@ -113,7 +112,8 @@ void setup() {
     ball_pos.y = y;
     k_mutex_unlock(&ball_mutex);
   });
-  // Monitor.begin();  // クラッシュ回避のためコメントアウト
+
+  Monitor.begin();  // クラッシュ回避のためコメントアウト
 #elif defined(ARDUINO_MINIMA)
   bridge.begin();
 #endif
@@ -121,10 +121,10 @@ void setup() {
   blinkLED(5);  // 5回点滅: 通信初期化完了、setup正常終了
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
-  new_head_pos.x = 0.0f;
-  new_head_pos.y = 1.0f;
-  ball_pos.x = 0.0f;
-  ball_pos.y = 0.0f;
+  // new_head_pos.x = 0.0f;
+  // new_head_pos.y = 1.0f;
+  // ball_pos.x = 0.0f;
+  // ball_pos.y = 0.0f;
 }
 
 Position local_new_head_pos;
@@ -145,9 +145,11 @@ void loop() {
 #if defined(ARDUINO_UNO_Q)
   Bridge.notify("mcu2py", head_pos.x, head_pos.y);
 
+  // 割り込みスレッドで更新されたターゲット座標を安全にコピーして、モーター制御に反映する
   k_mutex_lock(&head_mutex, K_FOREVER);
   local_new_head_pos = new_head_pos;
   k_mutex_unlock(&head_mutex);
+  xyControl.move(local_new_head_pos);
 
   // LED Matrixの描画は、安全なメインスレッド(loop)側で実行する
   k_mutex_lock(&ball_mutex, K_FOREVER);
@@ -155,7 +157,6 @@ void loop() {
   k_mutex_unlock(&ball_mutex);
   xy(matrix, local_ball_pos.x, local_ball_pos.y);
 
-  xyControl.move(local_new_head_pos);
 #elif defined(ARDUINO_MINIMA)
   // 2. シリアルポートからボール位置を受信し、現在XY位置を返送（Minima専用）
   if (bridge.receive(new_head_pos)) {
