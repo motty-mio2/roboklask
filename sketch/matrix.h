@@ -23,7 +23,10 @@ const uint8_t *generate_matrix(const float &x, const float &y) {
   int xx = (std::min(std::max(y, -1.0f), 1.0f) + 1.0f) * HALF_WIDTH;
   int yy = int(std::min(std::max(x, 0.0f), 1.0f) * (float)HEIGHT);
 
-  // led[xx] = 1;
+  // 境界外への書き込み（バッファオーバーフロー）を防止する安全クリップ
+  xx = std::max(0, std::min(xx, (int)WIDTH - 1));
+  yy = std::max(0, std::min(yy, (int)HEIGHT - 1));
+
   led[xx + yy * WIDTH] = 1;
 
   return led;
