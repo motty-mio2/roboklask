@@ -157,6 +157,7 @@ class XYControl {
     if (digitalRead(sw_x) == HIGH || digitalRead(sw_y) == HIGH) {
       stepper1.stop();
       stepper2.stop();
+      return;
     }
 
     stepper1.run();
