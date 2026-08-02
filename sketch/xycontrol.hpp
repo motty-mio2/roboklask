@@ -154,13 +154,11 @@ class XYControl {
   }
 
   void run() {
-    // デバッグのため一時的にスイッチ衝突保護を無効化
-    /*
     if (digitalRead(sw_x) == HIGH || digitalRead(sw_y) == HIGH) {
       stepper1.stop();
       stepper2.stop();
     }
-    */
+
     stepper1.run();
     stepper2.run();
   }
