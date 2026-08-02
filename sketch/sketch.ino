@@ -33,8 +33,8 @@ void blinkLED(int count) {
   delay(500);
 }
 
-unsigned long long now = millis();
-unsigned long long last_update_ms = millis();
+unsigned long now = 0;
+unsigned long last_update_ms = 0;
 constexpr uint8_t CYCLE_ms = 33;
 
 void setup() {
@@ -135,6 +135,7 @@ void loop() {
   // 33msの制御・通信周期によるディレイに影響されず、ステップパルスを生成し続けるため最優先で呼び出します
   xyControl.run();
 
+  now = millis();
   if (now - last_update_ms < CYCLE_ms) {
     return;
   }
