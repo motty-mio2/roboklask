@@ -5,7 +5,8 @@
 
 #include "matrix.h"
 Arduino_LED_Matrix matrix;
-K_MUTEX_DEFINE(xy_mutex);
+K_MUTEX_DEFINE(head_mutex);
+K_MUTEX_DEFINE(ball_mutex);
 #elif defined(ARDUINO_MINIMA)
 #include "serial_bridge.hpp"
 SerialBridge bridge(Serial, 115200);
@@ -20,6 +21,7 @@ XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR, SW_X, SW_Y);
 
 Position new_head_pos;
 Position head_pos;
+Position ball_pos;  // 追加: loopでの描画用
 
 void blinkLED(int count) {
   for (int i = 0; i < count; i++) {
@@ -58,14 +60,17 @@ void setup() {
   Bridge.begin();
 
   Bridge.provide("py2mcu", [](float x, float y) {
-    // k_mutex_lock(&xy_mutex, K_FOREVER);
+    // k_mutex_lock(&head_mutex, K_FOREVER);
     // new_head_pos.x = constrain(x, 0.0f, 1.0f);
     // new_head_pos.y = constrain(y, -1.0f, 1.0f);
-    // k_mutex_unlock(&xy_mutex);
+    // k_mutex_unlock(&head_mutex);
   });
   Bridge.provide("ball", [](float x, float y) {
-    // 受信したボール位置をそのまま表示する
-    xy(matrix, x, y);
+    // 割り込みスレッドでのクラッシュを防ぐため、ここでは座標の保存のみ行う
+    k_mutex_lock(&ball_mutex, K_FOREVER);
+    ball_pos.x = x;
+    ball_pos.y = y;
+    k_mutex_unlock(&ball_mutex);
   });
 // Monitor.begin();  // クラッシュ回避のためコメントアウト
 #elif defined(ARDUINO_MINIMA)
@@ -111,6 +116,8 @@ void setup() {
 }
 
 Position local_new_head_pos;
+Position local_ball_pos;
+
 void loop() {
   // xyControl.run();
   now = millis();
@@ -124,10 +131,16 @@ void loop() {
 
 #if defined(ARDUINO_UNO_Q)
   Bridge.notify("mcu2py", head_pos.x, head_pos.y);
-
-  k_mutex_lock(&xy_mutex, K_FOREVER);
+  k_mutex_lock(&head_mutex, K_FOREVER);
   local_new_head_pos = new_head_pos;
-  k_mutex_unlock(&xy_mutex);
+  k_mutex_unlock(&head_mutex);
+
+  // LED Matrixの描画は、安全なメインスレッド(loop)側で実行する
+  k_mutex_lock(&ball_mutex, K_FOREVER);
+  local_ball_pos = ball_pos;
+  k_mutex_unlock(&ball_mutex);
+  xy(matrix, local_ball_pos.x, local_ball_pos.y);
+
   xyControl.move(local_new_head_pos);
 #elif defined(ARDUINO_MINIMA)
   // 2. シリアルポートからボール位置を受信し、現在XY位置を返送（Minima専用）
