@@ -96,8 +96,8 @@ void setup() {
 
   Bridge.provide("py2mcu", [](float x, float y) {
     k_mutex_lock(&head_mutex, K_FOREVER);
-    new_head_pos.x = constrain(x, 0.0f, 1.0f);
-    new_head_pos.y = constrain(y, -1.0f, 1.0f);
+    new_head_pos.x = constrain(x, -1.0f, 1.0f);
+    new_head_pos.y = constrain(y, 0.0f, 1.0f);
     k_mutex_unlock(&head_mutex);
 
     // データ受信のたびにLEDをトグルして、受信割り込みの動作を目視確認する
