@@ -38,7 +38,7 @@ unsigned long long last_update_ms = millis();
 constexpr uint8_t CYCLE_ms = 33;
 
 void setup() {
-  // 最優先でLEDピンを初期化して消灯(HIGH=OFF)にする
+  // 1. 最優先でLEDピンを初期化して消灯(HIGH=OFF)にする
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
 
@@ -52,32 +52,11 @@ void setup() {
   blinkLED(1);  // 1回点滅: setup開始成功 (消灯で終了)
 
 #if defined(ARDUINO_UNO_Q)
+  // LED Matrixの初期化のみ最初に行う
   matrix.begin();
   matrix.setGrayscaleBits(1);
   matrix.clear();
-
-  // Bridgeの開始 (Pythonアプリとの通信接続待ちが発生する可能性あり)
-  Bridge.begin();
-
-  Bridge.provide("py2mcu", [](float x, float y) {
-    // k_mutex_lock(&head_mutex, K_FOREVER);
-    // new_head_pos.x = constrain(x, 0.0f, 1.0f);
-    // new_head_pos.y = constrain(y, -1.0f, 1.0f);
-    // k_mutex_unlock(&head_mutex);
-  });
-  Bridge.provide("ball", [](float x, float y) {
-    // 割り込みスレッドでのクラッシュを防ぐため、ここでは座標の保存のみ行う
-    k_mutex_lock(&ball_mutex, K_FOREVER);
-    ball_pos.x = x;
-    ball_pos.y = y;
-    k_mutex_unlock(&ball_mutex);
-  });
-// Monitor.begin();  // クラッシュ回避のためコメントアウト
-#elif defined(ARDUINO_MINIMA)
-  bridge.begin();
 #endif
-
-  blinkLED(2);  // 2回点滅: Bridge / 通信の初期化成功
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -93,22 +72,53 @@ void setup() {
   pinMode(M2, OUTPUT);
   digitalWrite(M2, setM2);
 
-  blinkLED(3);  // 3回点滅: ピン設定完了、Homing直前
+  blinkLED(2);  // 2回点滅: ピン初期設定完了、Homing直前
 
-  // キャリブレーション中はLEDを点灯
+  // 2. キャリブレーションの実行
+  // (この時点ではBridge通信は始まっていないため完全に安全)
   digitalWrite(LED_BUILTIN, LOW);  // 点灯 (LOW=ON)
   Serial.println("Starting homing...");
   xyControl.homing();
   digitalWrite(LED_BUILTIN, HIGH);  // 完了したら一旦消灯 (HIGH=OFF)
   Serial.println("Homing finished.");
 
-  blinkLED(4);  // 4回点滅: Homing完了、loop突入直前
+  blinkLED(3);  // 3回点滅: Homing完了、gotoCenter直前
 
-  Serial.println("Moving to center (skipped for debug)...");
-  // xyControl.gotoCenter();
-  Serial.println("Center reached (skipped for debug).");
+  Serial.println("Moving to center...");
+  xyControl.gotoCenter();  // 中央へ移動
+  Serial.println("Center reached.");
 
-  blinkLED(5);  // 5回点滅: setup正常終了
+  blinkLED(4);  // 4回点滅: Center移動完了、通信初期化直前
+
+  // 3. モーターのすべての初期位置合わせが完了した後に、通信を開始する
+#if defined(ARDUINO_UNO_Q)
+  Serial.println("Starting Bridge...");
+  Bridge.begin();
+
+  Bridge.provide("py2mcu", [](float x, float y) {
+    k_mutex_lock(&head_mutex, K_FOREVER);
+    new_head_pos.x = constrain(x, 0.0f, 1.0f);
+    new_head_pos.y = constrain(y, -1.0f, 1.0f);
+    k_mutex_unlock(&head_mutex);
+
+    // データ受信のたびにLEDをトグルして、受信割り込みの動作を目視確認する
+    static bool ledState = false;
+    ledState = !ledState;
+    digitalWrite(LED_BUILTIN, ledState ? LOW : HIGH);  // LOW=ON, HIGH=OFF
+  });
+  Bridge.provide("ball", [](float x, float y) {
+    // 割り込みスレッドでのクラッシュを防ぐため、ここでは座標の保存のみ行う
+    k_mutex_lock(&ball_mutex, K_FOREVER);
+    ball_pos.x = x;
+    ball_pos.y = y;
+    k_mutex_unlock(&ball_mutex);
+  });
+  // Monitor.begin();  // クラッシュ回避のためコメントアウト
+#elif defined(ARDUINO_MINIMA)
+  bridge.begin();
+#endif
+
+  blinkLED(5);  // 5回点滅: 通信初期化完了、setup正常終了
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
   new_head_pos.x = 0.0f;
@@ -119,18 +129,20 @@ Position local_new_head_pos;
 Position local_ball_pos;
 
 void loop() {
-  // xyControl.run();
-  now = millis();
+  // 1. モーターのステップを更新（最優先・毎ループ実行）
+  // 33msの制御・通信周期によるディレイに影響されず、ステップパルスを生成し続けるため最優先で呼び出します
+  xyControl.run();
+
   if (now - last_update_ms < CYCLE_ms) {
     return;
   }
-
   last_update_ms = now;
 
   xyControl.getCurrentXY(head_pos);
 
 #if defined(ARDUINO_UNO_Q)
   Bridge.notify("mcu2py", head_pos.x, head_pos.y);
+
   k_mutex_lock(&head_mutex, K_FOREVER);
   local_new_head_pos = new_head_pos;
   k_mutex_unlock(&head_mutex);
