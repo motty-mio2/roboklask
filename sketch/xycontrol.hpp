@@ -93,15 +93,15 @@ public:
 
     // ★ここで最初で最後の原点設定。
     // スイッチから完全に離脱した「この安全な隅」こそが、真の (0, 0) です。
-    stepper1.setCurrentPosition(0);
-    stepper2.setCurrentPosition(0);
-    delay(500);
+    // stepper1.setCurrentPosition(0);
+    // stepper2.setCurrentPosition(0);
+//     delay(500);
 
     // 本番用の設定に引き上げる（脱調防止のため、速度・加速度をマイルドに設定）
-    stepper1.setMaxSpeed(STEP * 5 * resolution);
-    stepper2.setMaxSpeed(STEP * 5 * resolution);
-    stepper1.setAcceleration(STEP * 5 * resolution);
-    stepper2.setAcceleration(STEP * 5 * resolution);
+  //   stepper1.setMaxSpeed(STEP * 5 * resolution);
+    // stepper2.setMaxSpeed(STEP * 5 * resolution);
+  //   stepper1.setAcceleration(STEP * 5 * resolution);
+    // stepper2.setAcceleration(STEP * 5 * resolution);
   }
 
   void move(const Position &pos) {

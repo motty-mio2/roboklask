@@ -6,7 +6,6 @@
 #include "matrix.h"
 Arduino_LED_Matrix matrix;
 K_MUTEX_DEFINE(xy_mutex);
-unsigned long lastReportMs = 0;
 #elif defined(ARDUINO_MINIMA)
 #include "serial_bridge.hpp"
 SerialBridge bridge(Serial, 115200);
@@ -18,8 +17,6 @@ SerialBridge bridge(Serial, 115200);
 #include "xycontrol.hpp"
 
 XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR, SW_X, SW_Y);
-
-long targetPos = 1000;
 
 Position new_head_pos;
 Position head_pos;
@@ -61,10 +58,10 @@ void setup() {
   Bridge.begin();
 
   Bridge.provide("py2mcu", [](float x, float y) {
-    k_mutex_lock(&xy_mutex, K_FOREVER);
-    new_head_pos.x = constrain(x, 0.0f, 1.0f);
-    new_head_pos.y = constrain(y, -1.0f, 1.0f);
-    k_mutex_unlock(&xy_mutex);
+    // k_mutex_lock(&xy_mutex, K_FOREVER);
+    // new_head_pos.x = constrain(x, 0.0f, 1.0f);
+    // new_head_pos.y = constrain(y, -1.0f, 1.0f);
+    // k_mutex_unlock(&xy_mutex);
   });
   Bridge.provide("ball", [](float x, float y) {
     // 受信したボール位置をそのまま表示する
@@ -126,7 +123,7 @@ void loop() {
   xyControl.getCurrentXY(head_pos);
 
 #if defined(ARDUINO_UNO_Q)
-  Bridge.call("mcu2py", head_pos.x, head_pos.y);
+  Bridge.notify("mcu2py", head_pos.x, head_pos.y);
 
   k_mutex_lock(&xy_mutex, K_FOREVER);
   local_new_head_pos = new_head_pos;
