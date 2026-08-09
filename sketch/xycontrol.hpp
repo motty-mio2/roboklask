@@ -94,8 +94,7 @@ public:
     // ★ここで最初で最後の原点設定。
     // スイッチから完全に離脱した「この安全な隅」こそが、真の (0, 0) です。
     Serial.println("homing: setting current positions to 0");
-    stepper1.setCurrentPosition(0);
-    stepper2.setCurrentPosition(0);
+    resetCoordinates();
     delay(500);
 
     // 本番用の設定に引き上げる（脱調防止のため、速度・加速度をマイルドに設定）
@@ -151,10 +150,57 @@ public:
     pos.y = (float)sy / YSTEP;
   }
 
+  void resetCoordinates() {
+    stepper1.setCurrentPosition(0);
+    stepper2.setCurrentPosition(0);
+  }
+
+  void resetX() {
+    long s1 = stepper1.currentPosition();
+    long s2 = stepper2.currentPosition();
+    long sy_steps = (s1 + s2) / 2;
+    stepper1.setCurrentPosition(sy_steps);
+    stepper2.setCurrentPosition(sy_steps);
+  }
+
+  void resetY() {
+    long s1 = stepper1.currentPosition();
+    long s2 = stepper2.currentPosition();
+    long sx_steps = (s1 - s2) / 2;
+    stepper1.setCurrentPosition(sx_steps);
+    stepper2.setCurrentPosition(-sx_steps);
+  }
+
   void run() {
-    if (digitalRead(sw_x) == HIGH || digitalRead(sw_y) == HIGH) {
+    if (digitalRead(sw_x) == HIGH) {
       stepper1.stop();
       stepper2.stop();
+      // 逃げる方向に移動 (sw_x から離れる)
+      stepper1.move(STEP_BACK);
+      stepper2.move(-STEP_BACK);
+      while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
+        stepper1.run();
+        stepper2.run();
+        yield();
+      }
+      delay(100);
+      resetX();
+      return;
+    }
+
+    if (digitalRead(sw_y) == HIGH) {
+      stepper1.stop();
+      stepper2.stop();
+      // 逃げる方向に移動 (sw_y から離れる)
+      stepper1.move(STEP_BACK);
+      stepper2.move(STEP_BACK);
+      while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
+        stepper1.run();
+        stepper2.run();
+        yield();
+      }
+      delay(100);
+      resetY();
       return;
     }
 
