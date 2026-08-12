@@ -82,6 +82,11 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH); // 完了したら一旦消灯 (HIGH=OFF)
   Serial.println("Homing finished.");
 
+  // 四隅巡回テストの実行
+  Serial.println("Starting test corners...");
+  xyControl.testCorners();
+  Serial.println("Test corners finished.");
+
   blinkLED(3); // 3回点滅: Homing完了、gotoCenter直前
 
   Serial.println("Moving to center...");
