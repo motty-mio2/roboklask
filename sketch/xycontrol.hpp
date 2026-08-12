@@ -30,8 +30,8 @@ public:
   void setOperationalSpeed() {
     stepper1.setMaxSpeed(STEP * 10 * resolution);
     stepper2.setMaxSpeed(STEP * 10 * resolution);
-    stepper1.setAcceleration(STEP * 10 * resolution);
-    stepper2.setAcceleration(STEP * 10 * resolution);
+    stepper1.setAcceleration(STEP * 5 * resolution);
+    stepper2.setAcceleration(STEP * 5 * resolution);
   }
 
   XYControl(const int m1_step, const int m1_dir, const int m2_step,
