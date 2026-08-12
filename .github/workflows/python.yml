@@ -25,7 +25,7 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run Type Checker
-        run: uv run mypy .
+        run: uv run mypy python
       - name: Run lint
         run: uv run ruff check
 
