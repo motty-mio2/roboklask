@@ -4,6 +4,8 @@ import argparse
 import logging
 import threading
 
+from typing import Any
+
 from python.domain.model.shared import Shared
 
 
@@ -46,6 +48,7 @@ def main() -> None:
     sh = Shared()
     use_onnx = not args.no_onnx
 
+    driver: Any
     if args.driver == "serial":
         from python.infra.driver.serial_driver import SerialDriver
 
@@ -57,6 +60,7 @@ def main() -> None:
     else:
         raise ValueError(f"Unknown driver: {args.driver}")
 
+    transmitter: Any
     if args.transmitter == "zenoh":
         from python.infra.transmitter.zenoh_transmitter import ZenohTransmitter
 
