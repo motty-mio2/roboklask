@@ -140,6 +140,9 @@ public:
   }
 
   void testCorners() {
+    Serial.println("testCorners: temporary setting to homing (low) speed");
+    setHomingSpeed(); // テスト中はベルト飛び・脱調防止のため低速に固定
+
     Position corners[] = {
         {-1.0f, 0.0f}, // 左手前
         {-1.0f, 1.0f}, // 左奥
@@ -148,13 +151,37 @@ public:
     };
 
     for (const auto &corner : corners) {
+      Serial.print("testCorners: target -> x=");
+      Serial.print(corner.x);
+      Serial.print(", y=");
+      Serial.println(corner.y);
+
       move(corner);
+
+      bool collision = false;
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
-        this->run();
+        // 安全ガード:
+        // テスト中にスイッチが反応したら即座に停止してテストを抜ける
+        if (digitalRead(sw_x) == HIGH || digitalRead(sw_y) == HIGH) {
+          Serial.println("testCorners: LIMIT DETECTED! Stopping.");
+          stepper1.stop();
+          stepper2.stop();
+          collision = true;
+          break;
+        }
+        stepper1.run();
+        stepper2.run();
         yield();
       }
-      delay(500); // 各角で動作確認のために0.5秒静止
+
+      if (collision) {
+        break;
+      }
+      delay(1000); // 動作確認のために各角で1秒静止
     }
+
+    Serial.println("testCorners: restoring operational speed");
+    setOperationalSpeed(); // テスト完了後に本番用速度に戻す
   }
 
   void getCurrentXY(Position &pos) {
