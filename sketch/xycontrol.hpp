@@ -139,6 +139,24 @@ public:
     }
   }
 
+  void testCorners() {
+    Position corners[] = {
+        {-1.0f, 0.0f}, // 左手前
+        {-1.0f, 1.0f}, // 左奥
+        {1.0f, 1.0f},  // 右奥
+        {1.0f, 0.0f}   // 右手前
+    };
+
+    for (const auto &corner : corners) {
+      move(corner);
+      while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
+        this->run();
+        yield();
+      }
+      delay(500); // 各角で動作確認のために0.5秒静止
+    }
+  }
+
   void getCurrentXY(Position &pos) {
     long s1 = stepper1.currentPosition();
     long s2 = stepper2.currentPosition();
