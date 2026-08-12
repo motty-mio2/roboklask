@@ -121,10 +121,10 @@ void setup() {
   blinkLED(5); // 5回点滅: 通信初期化完了、setup正常終了
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
-  // new_head_pos.x = 0.0f;
-  // new_head_pos.y = 1.0f;
-  // ball_pos.x = 0.0f;
-  // ball_pos.y = 0.0f;
+  new_head_pos.x = 0.0f;
+  new_head_pos.y = 1.0f;
+  ball_pos.x = 0.0f;
+  ball_pos.y = 0.0f;
 }
 
 Position local_new_head_pos;
