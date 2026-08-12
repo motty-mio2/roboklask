@@ -30,8 +30,8 @@ class DummyTransmitter:
                 # 30Hz dummy update
                 if now - last_update_time >= 1.0 / 30.0:
                     last_update_time = now
-                    # 経過時間(秒)に適度な速度係数(1.5)を掛けて角度にする
-                    t = (now - start_time) * 1.5
+                    # 経過時間(秒)に適度な速度係数(0.5)を掛けて角度にする
+                    t = (now - start_time) * 0.5
                     # 8の字の軌跡を描く(X: -1.0〜1.0, Y: 0.0〜1.0)
                     x = math.sin(t)
                     y = (math.sin(2 * t) + 1.0) / 2.0
