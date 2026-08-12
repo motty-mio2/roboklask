@@ -20,23 +20,31 @@ private:
   int sw_y;
 
 public:
+  void setHomingSpeed() {
+    stepper1.setMaxSpeed(STEP * 7 * resolution);
+    stepper1.setAcceleration(STEP * 7 * resolution);
+    stepper2.setMaxSpeed(STEP * 7 * resolution);
+    stepper2.setAcceleration(STEP * 7 * resolution);
+  }
+
+  void setOperationalSpeed() {
+    stepper1.setMaxSpeed(STEP * 10 * resolution);
+    stepper2.setMaxSpeed(STEP * 10 * resolution);
+    stepper1.setAcceleration(STEP * 10 * resolution);
+    stepper2.setAcceleration(STEP * 10 * resolution);
+  }
+
   XYControl(const int m1_step, const int m1_dir, const int m2_step,
             const int m2_dir, const int sw_x, const int sw_y)
       : stepper1(AccelStepper(1, m1_step, m1_dir)),
         stepper2(AccelStepper(1, m2_step, m2_dir)), sw_x(sw_x), sw_y(sw_y) {
-    stepper1.setMaxSpeed(STEP * 3 * resolution);
-    stepper1.setAcceleration(STEP * 3 * resolution);
-    stepper2.setMaxSpeed(STEP * 3 * resolution);
-    stepper2.setAcceleration(STEP * 3 * resolution);
+    setHomingSpeed();
   }
 
   bool homing() {
     // ホーミング用の微小移動ステップ（0へ向かってマイナスに進む）
     // 安全のためのキャリブレーション用低速設定
-    stepper1.setMaxSpeed(STEP * 3 * resolution);
-    stepper1.setAcceleration(STEP * 3 * resolution);
-    stepper2.setMaxSpeed(STEP * 3 * resolution);
-    stepper2.setAcceleration(STEP * 3 * resolution);
+    setHomingSpeed();
 
     // ==========================================
     // STEP 1: 左右リセット (SW_X が HIGH になるまでマイナス駆動)
@@ -99,10 +107,7 @@ public:
 
     // 本番用の設定に引き上げる（脱調防止のため、速度・加速度をマイルドに設定）
     Serial.println("homing: configuring operational speeds");
-    stepper1.setMaxSpeed(STEP * 3 * resolution);
-    stepper2.setMaxSpeed(STEP * 3 * resolution);
-    stepper1.setAcceleration(STEP * 3 * resolution);
-    stepper2.setAcceleration(STEP * 3 * resolution);
+    setOperationalSpeed();
     Serial.println("homing: complete");
     return true;
   }
