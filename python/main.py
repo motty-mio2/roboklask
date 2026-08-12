@@ -3,7 +3,6 @@
 import argparse
 import logging
 import threading
-
 from typing import Any
 
 from python.domain.model.shared import Shared
