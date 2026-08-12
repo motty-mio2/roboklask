@@ -1,10 +1,15 @@
 #include <AccelStepper.h>
 #if defined(ARDUINO_UNO_Q)
-#include <Arduino_LED_Matrix.h>
 #include <Arduino_RouterBridge.h>
 #include <zephyr/kernel.h>
+
+#include "matrix.h"
 Arduino_LED_Matrix matrix;
-K_MUTEX_DEFINE(anim_mtx);
+K_MUTEX_DEFINE(head_mutex);
+K_MUTEX_DEFINE(ball_mutex);
+#elif defined(ARDUINO_MINIMA)
+#include "serial_bridge.hpp"
+SerialBridge bridge(Serial, 115200);
 #endif
 
 #include <vector>
@@ -12,26 +17,46 @@ K_MUTEX_DEFINE(anim_mtx);
 #include "pinout.h"
 #include "xycontrol.hpp"
 
-XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR);
+XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR, SW_X, SW_Y);
 
-// Bridge providers run on a separate thread from loop().
-// This mutex protects shared animation state and serializes LED matrix writes.
-long targetPos = 1000;
+Position new_head_pos;
+Position head_pos;
+Position ball_pos; // 追加: loopでの描画用
+
+void blinkLED(int count) {
+  for (int i = 0; i < count; i++) {
+    digitalWrite(LED_BUILTIN, LOW); // 点灯 (LOW=ON)
+    delay(100);
+    digitalWrite(LED_BUILTIN, HIGH); // 消灯 (HIGH=OFF)
+    delay(100);
+  }
+  delay(500);
+}
+
+unsigned long now = 0;
+unsigned long last_update_ms = 0;
+constexpr uint8_t CYCLE_ms = 33;
 
 void setup() {
-#if defined(ARDUINO_UNO_Q)
+  // 1. 最優先でLEDピンを初期化して消灯(HIGH=OFF)にする
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
 
+  // PC接続用シリアルデバッグの開始
+  Serial.begin(115200);
+  for (int i = 0; i < 10 && !Serial; i++) {
+    delay(100);
+  }
+  Serial.println("MCU Started.");
+
+  blinkLED(1); // 1回点滅: setup開始成功 (消灯で終了)
+
+#if defined(ARDUINO_UNO_Q)
+  // LED Matrixの初期化のみ最初に行う
   matrix.begin();
   matrix.setGrayscaleBits(1);
   matrix.clear();
-
-  Bridge.begin();
-
-  Monitor.begin();
 #endif
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH); // キャリブレーション中点灯
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -39,48 +64,110 @@ void setup() {
   pinMode(nEN, OUTPUT);
   digitalWrite(nEN, HIGH);
 
-  // 0, 1番ピンのINPUTハック
-  if (setM0) {
-    pinMode(M0, OUTPUT);
-    digitalWrite(M0, true);
-  } else {
-    pinMode(M0, INPUT);
-  }
-  if (setM1) {
-    pinMode(M1, OUTPUT);
-    digitalWrite(M1, true);
-  } else {
-    pinMode(M1, INPUT);
-  }
+  // M0, M1, M2ピンの出力を明示的に設定
+  pinMode(M0, OUTPUT);
+  digitalWrite(M0, setM0);
+  pinMode(M1, OUTPUT);
+  digitalWrite(M1, setM1);
   pinMode(M2, OUTPUT);
   digitalWrite(M2, setM2);
 
-  xyControl.homing(SW_X, SW_Y);
+  blinkLED(2); // 2回点滅: ピン初期設定完了、Homing直前
+
+  // 2. キャリブレーションの実行
+  // (この時点ではBridge通信は始まっていないため完全に安全)
+  digitalWrite(LED_BUILTIN, LOW); // 点灯 (LOW=ON)
+  Serial.println("Starting homing...");
+  xyControl.homing();
+  digitalWrite(LED_BUILTIN, HIGH); // 完了したら一旦消灯 (HIGH=OFF)
+  Serial.println("Homing finished.");
+
+  blinkLED(3); // 3回点滅: Homing完了、gotoCenter直前
+
+  Serial.println("Moving to center...");
+  xyControl.gotoCenter(); // 中央へ移動
+  Serial.println("Center reached.");
+
+  blinkLED(4); // 4回点滅: Center移動完了、通信初期化直前
+
+  // 3. モーターのすべての初期位置合わせが完了した後に、通信を開始する
+#if defined(ARDUINO_UNO_Q)
+  Bridge.begin();
+
+  Bridge.provide("py2mcu", [](float x, float y) {
+    k_mutex_lock(&head_mutex, K_FOREVER);
+    new_head_pos.x = constrain(x, -1.0f, 1.0f);
+    new_head_pos.y = constrain(y, 0.0f, 1.0f);
+    k_mutex_unlock(&head_mutex);
+
+    // データ受信のたびにLEDをトグルして、受信割り込みの動作を目視確認する
+    static bool ledState = false;
+    ledState = !ledState;
+    digitalWrite(LED_BUILTIN, ledState ? LOW : HIGH); // LOW=ON, HIGH=OFF
+  });
+  Bridge.provide("ball", [](float x, float y) {
+    // 割り込みスレッドでのクラッシュを防ぐため、ここでは座標の保存のみ行う
+    k_mutex_lock(&ball_mutex, K_FOREVER);
+    ball_pos.x = x;
+    ball_pos.y = y;
+    k_mutex_unlock(&ball_mutex);
+  });
+
+  Monitor.begin(); // クラッシュ回避のためコメントアウト
+#elif defined(ARDUINO_MINIMA)
+  bridge.begin();
+#endif
+
+  blinkLED(5); // 5回点滅: 通信初期化完了、setup正常終了
+
+  // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
+  // new_head_pos.x = 0.0f;
+  // new_head_pos.y = 1.0f;
+  // ball_pos.x = 0.0f;
+  // ball_pos.y = 0.0f;
 }
 
+Position local_new_head_pos;
+Position local_ball_pos;
+
 void loop() {
-  // // 1. モーターを動かす（最優先で呼ぶ）
-  // stepper1.run();
+  // 1. モーターのステップを更新（最優先・毎ループ実行）
+  // 33msの制御・通信周期によるディレイに影響されず、ステップパルスを生成し続けるため最優先で呼び出します
+  xyControl.run();
 
-  // // 2. 目標地点に着いたら反転する
-  // if (stepper1.distanceToGo() == 0) {
-  //   Serial.print("Reached target! Current: ");
-  //   Serial.println(stepper1.currentPosition());
+  now = millis();
+  if (now - last_update_ms < CYCLE_ms) {
+    return;
+  }
+  last_update_ms = now;
 
-  //   delay(500);              // 少し止まってから反対へ
-  //   targetPos = -targetPos;  // 4000 ↔ -4000
-  //   stepper1.moveTo(targetPos);
+  xyControl.getCurrentXY(head_pos);
 
-  //   Serial.print("Next target set to: ");
-  //   Serial.println(targetPos);
-  // }
+#if defined(ARDUINO_UNO_Q)
+  Bridge.notify("mcu2py", head_pos.x, head_pos.y);
 
-  // // 3. 定期的に現在地をprintする（100msごとなど、やりすぎ注意）
-  // static unsigned long lastPrint = 0;
-  // if (millis() - lastPrint > 100) {
-  //   // 動作が重くならないよう、動いている最中も軽く表示
-  //   Monitor.print("Pos: ");
-  //   Monitor.println(stepper1.currentPosition());
-  //   lastPrint = millis();
-  // }
+  // 割り込みスレッドで更新されたターゲット座標を安全にコピーして、モーター制御に反映する
+  k_mutex_lock(&head_mutex, K_FOREVER);
+  local_new_head_pos = new_head_pos;
+  k_mutex_unlock(&head_mutex);
+  xyControl.move(local_new_head_pos);
+
+  // LED Matrixの描画は、安全なメインスレッド(loop)側で実行する
+  k_mutex_lock(&ball_mutex, K_FOREVER);
+  local_ball_pos = ball_pos;
+  k_mutex_unlock(&ball_mutex);
+  xy(matrix, local_ball_pos.x, local_ball_pos.y);
+
+#elif defined(ARDUINO_MINIMA)
+  // 2. シリアルポートからボール位置を受信し、現在XY位置を返送（Minima専用）
+  if (bridge.receive(new_head_pos)) {
+    // 【通信確認用デバッグ】データを受信するたびにLEDをチカチカ点滅させる
+    static bool ledState = false;
+    ledState = !ledState;
+  }
+
+  // 現在のXY位置をUARTで送信（SerialBridge内で20ms間引き）
+  bridge.sendPosition(head_pos);
+  xyControl.move(local_new_head_pos);
+#endif
 }

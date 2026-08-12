@@ -4,17 +4,35 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
+authors = [{ name = "motty", email = "motty.mio2@gmail.com" }]
 dependencies = [
   "arduino-app-bricks",
+  "eclipse-zenoh==1.9.0",
   "onnxruntime>=1.26.0",
+  "pydantic>=2.13.4",
+  "pydantic-settings>=2.14.2",
+  "pyserial>=3.5",
+  "watchdog>=6.0.0",
 ]
 
 [dependency-groups]
 dev = [
+  "mypy>=2.1.0",
   "poethepoet>=0.46.0",
-  "pyrefly>=1.0.0",
   "ruff>=0.15.15",
+  "types-pyserial>=3.5.0.20260519",
 ]
+
+[build-system]
+requires = ["uv_build>=0.11.26,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["onnxruntime", "depthai", "serial", "cv2.*", "arduino.*"]
+ignore_missing_imports = true
 
 [tool.poe.tasks]
 format = [
@@ -23,25 +41,29 @@ format = [
 ]
 lint = [
   { cmd = "ruff check" },
-  { cmd = "pyrefly check" },
+]
+check = [
+  { cmd = "mypy python" },
 ]
 
 [tool.poe.tasks.export]
 cmd = """
 uv export \
 --no-hashes --no-dev \
+--no-emit-project \
 --prune arduino-app-bricks \
 --format requirements.txt --output-file requirements.txt \
 """
 
-[tool.pyrefly]
-preset = "strict"
-
 [tool.ruff]
 target-version = "py313"
+line-length = 120
 
 [tool.ruff.lint]
-extend-select = ["E", "F", "W", "I", "B"]
+extend-select = ["E", "F", "W", "I", "B", "RUF", "UP", "TID252"]
 
 [tool.uv.sources]
 arduino-app-bricks = { git = "https://github.com/arduino/app-bricks-py", tag = "release/0.10.1" }
+
+[tool.uv.build-backend]
+module-root = "."

@@ -1,34 +1,85 @@
+# Initialize WebUI
+# ui = WebUI()
+import argparse
+import logging
+import threading
 from typing import Any
 
-from arduino.app_bricks.web_ui import WebUI
-from arduino.app_utils import App, Bridge
-
-# Initialize WebUI
-ui = WebUI()
+from python.domain.model.shared import Shared
 
 
-def api_xy(data: dict) -> dict[str, Any]:
-    """Handle the XY update request from WebUI."""
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run roboklask Python runtime")
+    parser.add_argument(
+        "--driver",
+        choices=["serial", "bridge"],
+        default="bridge",
+        help="Communication driver: serial or bridge",
+    )
+    parser.add_argument(
+        "--transmitter",
+        choices=["zenoh", "dummy"],
+        default="dummy",
+        help="Transmitter type: zenoh or dummy",
+    )
+    parser.add_argument(
+        "--no-onnx",
+        action="store_true",
+        help="Disable ONNX model inference and use dummy coordinates",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging of sent and received coordinates",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+
+    log_level = logging.DEBUG if args.debug else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+
+    sh = Shared()
+    use_onnx = not args.no_onnx
+
+    driver: Any
+    if args.driver == "serial":
+        from python.infra.driver.serial_driver import SerialDriver
+
+        driver = SerialDriver(shared=sh, use_onnx=use_onnx)
+    elif args.driver == "bridge":
+        from python.infra.driver.bridge_driver import BridgeDriver
+
+        driver = BridgeDriver(shared=sh, use_onnx=use_onnx)
+    else:
+        raise ValueError(f"Unknown driver: {args.driver}")
+
+    transmitter: Any
+    if args.transmitter == "zenoh":
+        from python.infra.transmitter.zenoh_transmitter import ZenohTransmitter
+
+        transmitter = ZenohTransmitter(shared=sh)
+    elif args.transmitter == "dummy":
+        from python.infra.transmitter.dummy_transmitter import DummyTransmitter
+
+        transmitter = DummyTransmitter(shared=sh)
+    else:
+        raise ValueError(f"Unknown transmitter: {args.transmitter}")
+
+    t_transmitter = threading.Thread(target=transmitter.spin, name="TransmitterThread", daemon=True)
+
+    t_transmitter.start()
+
     try:
-
-        x = float(data.get("x", 0.5))
-        y = float(data.get("y", 0.0))
-
-        print(f"Action: Updating LED to x={x:.2f}, y={y:.2f}")
-
-        # Call Arduino Bridge function
-        Bridge.call("xy", x, y)
-
-        return {"status": "success", "x": x, "y": y}
-    except Exception as e:
-        print(f"Error: {e}")
-        return {"status": "error", "message": str(e)}
+        driver.run()
+    except KeyboardInterrupt:
+        print("Shutting down...", flush=True)
 
 
-# Register the API endpoint
-# Framework likely prepends /api automatically
-ui.expose_api("POST", "/xy", api_xy)
-
-
-
-App.run()
+if __name__ == "__main__":
+    main()

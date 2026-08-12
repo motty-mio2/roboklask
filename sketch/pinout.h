@@ -19,10 +19,10 @@ constexpr uint8_t SW_B = 13;
 #pragma message "\n >> ARDUINO_MINIMA is defined."
 constexpr uint8_t SW_X = 19;
 constexpr uint8_t SW_Y = 18;
-#else if defined(ARDUINO_UNO_Q)
+#elif defined(ARDUINO_UNO_Q)
 #pragma message "\n >> ARDUINO_UNO_Q is defined."
-constexpr uint8_t SW_X = 20;
-constexpr uint8_t SW_Y = 21;
+constexpr uint8_t SW_X = 21;
+constexpr uint8_t SW_Y = 20;
 #endif
 
 #endif // PINOUT_H
