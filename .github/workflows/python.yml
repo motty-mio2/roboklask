@@ -14,7 +14,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-arm64
     defaults:
       run:
         working-directory: python
@@ -24,15 +24,14 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
-      - name: Run Type Checker
-        run: uv run mypy python
-      - name: Run lint
-        run: uv run ruff check
-
-      - name: Run Formatter
-        run: uv run ruff format --check
-
-      - name: Verify requirements.txt is in sync
-        run: |
-          uv run poe export
-          git diff --exit-code requirements.txt
+      - parallel:
+          - name: Run Type Checker
+            run: uv run pyright
+          - name: Run lint
+            run: uv run ruff check
+          - name: Run Formatter
+            run: uv run ruff format --check
+          - name: Verify requirements.txt is in sync
+            run: |
+              uv run poe export
+              git diff --exit-code requirements.txt

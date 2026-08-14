@@ -26,9 +26,6 @@ jobs:
 
   compile:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        profile: [default, minima]
     steps:
       - uses: actions/checkout@v6
 
@@ -38,9 +35,8 @@ jobs:
           path: |
             ~/.arduino15
             ~/Arduino
-          key: arduino-${{ matrix.profile }}-${{ hashFiles('sketch/**') }}
+          key: arduino-${{ hashFiles('sketch/**') }}
           restore-keys: |
-            arduino-${{ matrix.profile }}-
             arduino-
 
       - name: Setup Arduino CLI
@@ -49,8 +45,8 @@ jobs:
       - name: Install Platforms
         run: |
           arduino-cli core update-index
-          arduino-cli core install arduino:zephyr arduino:renesas_uno
+          arduino-cli core install arduino:zephyr
 
-      - name: Compile Sketch (${{ matrix.profile }})
-        run: arduino-cli compile -m ${{ matrix.profile }} .
+      - name: Compile Sketch
+        run: arduino-cli compile -m default .
         working-directory: sketch
