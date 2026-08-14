@@ -17,8 +17,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "pyright>=1.1.393",
   "poethepoet>=0.46.0",
+  "pyright>=1.1.393",
   "ruff>=0.15.15",
   "types-pyserial>=3.5.0.20260519",
 ]
@@ -26,15 +26,6 @@ dev = [
 [build-system]
 requires = ["uv_build>=0.11.26,<0.12.0"]
 build-backend = "uv_build"
-
-[tool.pyright]
-typeCheckingMode = "strict"
-reportMissingImports = "none"
-reportMissingTypeStubs = "none"
-reportUnknownVariableType = "none"
-reportUnknownMemberType = "none"
-reportUnknownArgumentType = "none"
-reportUnknownParameterType = "none"
 
 [tool.poe.tasks]
 format = [
@@ -56,6 +47,15 @@ uv export \
 --prune arduino-app-bricks \
 --format requirements.txt --output-file requirements.txt \
 """
+
+[tool.pyright]
+typeCheckingMode = "strict"
+reportMissingImports = "none"
+reportMissingTypeStubs = "none"
+reportUnknownVariableType = "none"
+reportUnknownMemberType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownParameterType = "none"
 
 [tool.ruff]
 target-version = "py313"
