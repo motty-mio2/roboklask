@@ -28,27 +28,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - parallel:
+        - name: Cache Arduino Dependencies
+          uses: actions/cache@v5
+          with:
+            path: |
+              ~/.arduino15
+              ~/Arduino
+            key: arduino-deps-${{ runner.os }}-${{ hashFiles('sketch/sketch.yaml') }}
+            restore-keys: |
+              arduino-deps-${{ runner.os }}-
 
-      - name: Cache Arduino Dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.arduino15
-            ~/Arduino
-          key: arduino-deps-${{ runner.os }}-${{ hashFiles('sketch/sketch.yaml') }}
-          restore-keys: |
-            arduino-deps-${{ runner.os }}-
+        - name: Cache Arduino Build Cache
+          uses: actions/cache@v5
+          with:
+            path: ~/.arduino_build_cache
+            key: arduino-build-${{ runner.os }}-${{ github.sha }}
+            restore-keys: |
+              arduino-build-${{ runner.os }}-
 
-      - name: Cache Arduino Build Cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.arduino_build_cache
-          key: arduino-build-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            arduino-build-${{ runner.os }}-
-
-      - name: Setup Arduino CLI
-        uses: arduino/setup-arduino-cli@v2
+        - name: Setup Arduino CLI
+          uses: arduino/setup-arduino-cli@v2
 
       - name: Install Platforms
         run: |
