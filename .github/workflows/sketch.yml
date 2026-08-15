@@ -56,5 +56,5 @@ jobs:
           arduino-cli core install arduino:zephyr
 
       - name: Compile Sketch
-        run: arduino-cli compile --build-cache-path ~/.arduino_build_cache -m default .
+        run: arduino-cli compile --build-path ~/.arduino_build_cache -m default .
         working-directory: sketch
