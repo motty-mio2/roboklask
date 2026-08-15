@@ -20,7 +20,7 @@ jobs:
       - uses: jdx/mise-action@v4
         with:
           working_directory: sketch
-      - name: Run clang-format
+      - name: Run Lint (clang-format & cppcheck)
         run: mise lint
         working-directory: sketch
 

@@ -13,7 +13,8 @@ private:
   unsigned long lastSent = 0;
 
 public:
-  SerialBridge(HardwareSerial &port = Serial, unsigned long baud = 115200)
+  explicit SerialBridge(HardwareSerial &port = Serial,
+                        unsigned long baud = 115200)
       : serialPort(port), baudrate(baud) {}
 
   bool begin() {
@@ -28,8 +29,8 @@ public:
     if (serialPort.available() >= 9) {
       if (serialPort.read() == 0xAA) {
         float x_val, y_val;
-        serialPort.readBytes((char *)&x_val, 4);
-        serialPort.readBytes((char *)&y_val, 4);
+        serialPort.readBytes(reinterpret_cast<char *>(&x_val), 4);
+        serialPort.readBytes(reinterpret_cast<char *>(&y_val), 4);
         if (isnan(x_val) || isnan(y_val)) {
           return false;
         }
@@ -44,14 +45,14 @@ public:
   // 送信: モーターの現在XY位置を送出する（intervalMs ごとに間引き）
   // パケット形式: [0xAA][float x 4bytes][float y 4bytes]
   void sendPosition(const Position &pos, unsigned long intervalMs = 20) {
-    unsigned long now = millis();
-    if (now - lastSent < intervalMs)
+    unsigned long current_ms = millis();
+    if (current_ms - lastSent < intervalMs)
       return;
-    lastSent = now;
+    lastSent = current_ms;
     const uint8_t header = 0xAA;
     serialPort.write(&header, 1);
-    serialPort.write((const uint8_t *)&pos.x, 4);
-    serialPort.write((const uint8_t *)&pos.y, 4);
+    serialPort.write(reinterpret_cast<const uint8_t *>(&pos.x), 4);
+    serialPort.write(reinterpret_cast<const uint8_t *>(&pos.y), 4);
   }
 };
 
