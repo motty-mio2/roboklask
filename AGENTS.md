@@ -65,7 +65,7 @@ cd python
 uv run ruff check              # Lint only
 uv run ruff format --check     # Check formatting without modifying
 uv run pyrefly check           # Type check only (ignores src/ folder to avoid binary binding stub errors)
-uv run poe check               # Runs strict mypy type checking on src/viewer/
+uv run poe check               # Runs strict pyright type checking on src/viewer/
 uv run python run_vision.py    # Starts the vision viewer tracking pipeline
 ```
 
@@ -84,7 +84,7 @@ mise run build         # arduino-cli compile --fqbn arduino:zephyr:unoq .
 - Linter: **ruff** with rules `E, F, W, I, B, RUF, UP, TID252` targeting Python 3.13.
 - Type checkers:
   - **pyrefly** with `strict` preset for root python scripts. Note: `src/` is excluded via `.ignore` to avoid false-positives with binary wheels.
-  - **mypy** with `strict = true` config for all core package code in `src/`.
+  - **pyright** with `strict` mode config for all core package code in `src/`.
 - The `arduino-app-bricks` dependency is sourced from a Git tag (not PyPI).
 - After changing dependencies, run `mise run export` in `python/` to regenerate `requirements.txt`.
 
@@ -99,5 +99,5 @@ mise run build         # arduino-cli compile --fqbn arduino:zephyr:unoq .
 
 GitHub Actions runs on pushes/PRs to `main` with path-scoped triggers:
 
-- **Python** (`python/`): pyrefly check → ruff check → ruff format --check → verify `requirements.txt` is in sync.
+- **Python** (`python/`): pyrefly check → ruff check → ruff format --check → pyright check → verify `requirements.txt` is in sync on `ubuntu-arm64`.
 - **Sketch** (`sketch/`): clang-format lint → arduino-cli compile.
