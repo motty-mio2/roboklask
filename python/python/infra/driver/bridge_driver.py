@@ -29,8 +29,11 @@ class BridgeDriver(BaseDriver):
 
     def mcu2py(self, st_x: float, st_y: float) -> Any:
         logger.debug(f"RX feedback <- MCU: x={st_x:.4f}, y={st_y:.4f}")
+        # 物理的な遊びやキャリブレーションのズレによる範囲外の値をクリップ
+        clamped_x = max(-1.0, min(1.0, st_x))
+        clamped_y = max(-1.0, min(1.0, st_y))
         with self.shared.lock:
-            self.shared.striker = RobotXY(x=st_x, y=st_y)
+            self.shared.striker = RobotXY(x=clamped_x, y=clamped_y)
 
     def loop(self) -> None:
         time.sleep(0.03)  # 30Hz

@@ -1,4 +1,3 @@
-import random
 import time
 
 from python.domain.model.robot_xy import RobotXY
@@ -21,15 +20,23 @@ class DummyTransmitter:
 
     def spin(self) -> None:
         """Simulate ball coordinate updates at 30Hz."""
-        last_update_time = time.time()
+        import math
+
+        start_time = time.time()
+        last_update_time = start_time
         try:
             while True:
                 now = time.time()
                 # 30Hz dummy update
                 if now - last_update_time >= 1.0 / 30.0:
                     last_update_time = now
+                    # 経過時間(秒)に適度な速度係数(0.5)を掛けて角度にする
+                    t = (now - start_time) * 0.5
+                    # 8の字の軌跡を描く(X: -1.0〜1.0, Y: 0.0〜1.0)
+                    x = math.sin(t)
+                    y = (math.sin(2 * t) + 1.0) / 2.0
                     with self.shared.lock:
-                        self.shared.ball = RobotXY(x=random.uniform(-1.0, 1.0), y=random.uniform(-1.0, 1.0))
+                        self.shared.ball = RobotXY(x=x, y=y)
                 time.sleep(0.01)
         except KeyboardInterrupt:
             pass

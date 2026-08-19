@@ -20,23 +20,31 @@ private:
   int sw_y;
 
 public:
+  void setHomingSpeed() {
+    stepper1.setMaxSpeed(STEP * 7 * resolution);
+    stepper1.setAcceleration(STEP * 7 * resolution);
+    stepper2.setMaxSpeed(STEP * 7 * resolution);
+    stepper2.setAcceleration(STEP * 7 * resolution);
+  }
+
+  void setOperationalSpeed() {
+    stepper1.setMaxSpeed(STEP * 10 * resolution);
+    stepper2.setMaxSpeed(STEP * 10 * resolution);
+    stepper1.setAcceleration(STEP * 4 * resolution);
+    stepper2.setAcceleration(STEP * 4 * resolution);
+  }
+
   XYControl(const int m1_step, const int m1_dir, const int m2_step,
             const int m2_dir, const int sw_x, const int sw_y)
       : stepper1(AccelStepper(1, m1_step, m1_dir)),
         stepper2(AccelStepper(1, m2_step, m2_dir)), sw_x(sw_x), sw_y(sw_y) {
-    stepper1.setMaxSpeed(STEP * 3 * resolution);
-    stepper1.setAcceleration(STEP * 3 * resolution);
-    stepper2.setMaxSpeed(STEP * 3 * resolution);
-    stepper2.setAcceleration(STEP * 3 * resolution);
+    setHomingSpeed();
   }
 
   bool homing() {
     // ホーミング用の微小移動ステップ（0へ向かってマイナスに進む）
     // 安全のためのキャリブレーション用低速設定
-    stepper1.setMaxSpeed(STEP * 3 * resolution);
-    stepper1.setAcceleration(STEP * 3 * resolution);
-    stepper2.setMaxSpeed(STEP * 3 * resolution);
-    stepper2.setAcceleration(STEP * 3 * resolution);
+    setHomingSpeed();
 
     // ==========================================
     // STEP 1: 左右リセット (SW_X が HIGH になるまでマイナス駆動)
@@ -99,10 +107,7 @@ public:
 
     // 本番用の設定に引き上げる（脱調防止のため、速度・加速度をマイルドに設定）
     Serial.println("homing: configuring operational speeds");
-    stepper1.setMaxSpeed(STEP * 3 * resolution);
-    stepper2.setMaxSpeed(STEP * 3 * resolution);
-    stepper1.setAcceleration(STEP * 3 * resolution);
-    stepper2.setAcceleration(STEP * 3 * resolution);
+    setOperationalSpeed();
     Serial.println("homing: complete");
     return true;
   }
@@ -132,6 +137,51 @@ public:
       this->run();
       yield();
     }
+  }
+
+  void testCorners() {
+    Serial.println("testCorners: temporary setting to homing (low) speed");
+    setHomingSpeed(); // テスト中はベルト飛び・脱調防止のため低速に固定
+
+    Position corners[] = {
+        {-1.0f, 0.0f}, // 左手前
+        {-1.0f, 1.0f}, // 左奥
+        {1.0f, 1.0f},  // 右奥
+        {1.0f, 0.0f}   // 右手前
+    };
+
+    for (const auto &corner : corners) {
+      Serial.print("testCorners: target -> x=");
+      Serial.print(corner.x);
+      Serial.print(", y=");
+      Serial.println(corner.y);
+
+      move(corner);
+
+      bool collision = false;
+      while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
+        // 安全ガード:
+        // テスト中にスイッチが反応したら即座に停止してテストを抜ける
+        if (digitalRead(sw_x) == HIGH || digitalRead(sw_y) == HIGH) {
+          Serial.println("testCorners: LIMIT DETECTED! Stopping.");
+          stepper1.stop();
+          stepper2.stop();
+          collision = true;
+          break;
+        }
+        stepper1.run();
+        stepper2.run();
+        yield();
+      }
+
+      if (collision) {
+        break;
+      }
+      delay(1000); // 動作確認のために各角で1秒静止
+    }
+
+    Serial.println("testCorners: restoring operational speed");
+    setOperationalSpeed(); // テスト完了後に本番用速度に戻す
   }
 
   void getCurrentXY(Position &pos) {
