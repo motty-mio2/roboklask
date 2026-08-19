@@ -82,6 +82,11 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH); // 完了したら一旦消灯 (HIGH=OFF)
   Serial.println("Homing finished.");
 
+  // 四隅巡回テストの実行
+  Serial.println("Starting test corners...");
+  xyControl.testCorners();
+  Serial.println("Test corners finished.");
+
   blinkLED(3); // 3回点滅: Homing完了、gotoCenter直前
 
   Serial.println("Moving to center...");
@@ -121,10 +126,10 @@ void setup() {
   blinkLED(5); // 5回点滅: 通信初期化完了、setup正常終了
 
   // 初期ターゲットを中央に設定し、loop()突入時の引き戻しを防ぐ
-  // new_head_pos.x = 0.0f;
-  // new_head_pos.y = 1.0f;
-  // ball_pos.x = 0.0f;
-  // ball_pos.y = 0.0f;
+  new_head_pos.x = 0.0f;
+  new_head_pos.y = 1.0f;
+  ball_pos.x = 0.0f;
+  ball_pos.y = 0.0f;
 }
 
 Position local_new_head_pos;
