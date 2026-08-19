@@ -1,14 +1,13 @@
 #ifndef MOTOR_CONFIG_H
 #define MOTOR_CONFIG_H_
 
-constexpr int setM0 = false;
+constexpr int setM0 = true;
 constexpr int setM1 = true;
-constexpr int setM2 = false;
+constexpr int setM2 = true;
 
 // 1回転あたりのベースステップ数
 constexpr int STEP = 400;
-constexpr int resolution =
-    std::min(32, (setM0 ? 2 : 1) * (setM1 ? 4 : 1) * (setM2 ? 16 : 1));
+constexpr int resolution = 32;
 
 // 盤面の可動最大ステップ数
 constexpr int STEP_BACK = 100;

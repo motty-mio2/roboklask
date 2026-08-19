@@ -145,7 +145,9 @@ void loop() {
   now = millis();
   if (now - last_update_ms < CYCLE_ms) {
 #if defined(ARDUINO_UNO_Q)
-    safeUpdate(); // Bridgeの受信処理を直接実行してキューイングを防止する
+    if (Serial1.available() > 0) {
+      safeUpdate(); // Bridgeの受信処理を直接実行してキューイングを防止する
+    }
 #endif
     return;
   }
