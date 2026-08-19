@@ -21,17 +21,17 @@ private:
 
 public:
   void setHomingSpeed() {
-    stepper1.setMaxSpeed(STEP * 7 * resolution);
-    stepper1.setAcceleration(STEP * 7 * resolution);
-    stepper2.setMaxSpeed(STEP * 7 * resolution);
-    stepper2.setAcceleration(STEP * 7 * resolution);
+    stepper1.setMaxSpeed(STEP * 5 * resolution);
+    stepper1.setAcceleration(STEP * 5 * resolution);
+    stepper2.setMaxSpeed(STEP * 5 * resolution);
+    stepper2.setAcceleration(STEP * 5 * resolution);
   }
 
   void setOperationalSpeed() {
-    stepper1.setMaxSpeed(STEP * 15 * resolution);
-    stepper2.setMaxSpeed(STEP * 15 * resolution);
-    stepper1.setAcceleration(STEP * 8 * resolution);
-    stepper2.setAcceleration(STEP * 8 * resolution);
+    stepper1.setMaxSpeed(STEP * 10 * resolution);
+    stepper2.setMaxSpeed(STEP * 10 * resolution);
+    stepper1.setAcceleration(STEP * 4 * resolution);
+    stepper2.setAcceleration(STEP * 4 * resolution);
   }
 
   XYControl(const int m1_step, const int m1_dir, const int m2_step,
