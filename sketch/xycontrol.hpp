@@ -57,7 +57,6 @@ public:
       }
       stepper1.run();
       stepper2.run();
-      yield();
     }
 
     stepper1.stop();
@@ -68,7 +67,6 @@ public:
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       stepper1.run();
       stepper2.run();
-      yield();
     }
     delay(200);
 
@@ -83,7 +81,6 @@ public:
       }
       stepper1.run();
       stepper2.run();
-      yield();
     }
 
     stepper1.stop();
@@ -95,7 +92,6 @@ public:
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       stepper1.run();
       stepper2.run();
-      yield();
     }
     delay(200);
 
@@ -135,7 +131,6 @@ public:
 
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       this->run();
-      yield();
     }
   }
 
@@ -171,7 +166,6 @@ public:
         }
         stepper1.run();
         stepper2.run();
-        yield();
       }
 
       if (collision) {
@@ -231,7 +225,6 @@ public:
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
-        yield();
       }
       delay(100);
       resetX();
@@ -247,7 +240,6 @@ public:
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
-        yield();
       }
       delay(100);
       resetY();

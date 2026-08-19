@@ -75,22 +75,26 @@ void setup() {
   blinkLED(2); // 2回点滅: ピン初期設定完了、Homing直前
 
   // 2. キャリブレーションの実行
-  // (この時点ではBridge通信は始まっていないため完全に安全)
-  digitalWrite(LED_BUILTIN, LOW); // 点灯 (LOW=ON)
+  digitalWrite(LED_BUILTIN, LOW); // Homing開始: 点灯 (LOW=ON)
   Serial.println("Starting homing...");
   xyControl.homing();
-  digitalWrite(LED_BUILTIN, HIGH); // 完了したら一旦消灯 (HIGH=OFF)
+  digitalWrite(LED_BUILTIN, HIGH); // Homing完了: 消灯 (HIGH=OFF)
   Serial.println("Homing finished.");
 
   // 四隅巡回テストの実行
+  digitalWrite(LED_BUILTIN, LOW); // 四隅テスト開始: 点灯 (LOW=ON)
   Serial.println("Starting test corners...");
   xyControl.testCorners();
+  digitalWrite(LED_BUILTIN, HIGH); // 四隅テスト完了: 消灯 (HIGH=OFF)
   Serial.println("Test corners finished.");
 
-  blinkLED(3); // 3回点滅: Homing完了、gotoCenter直前
+  blinkLED(3); // 3回点滅: Homing&Test完了、gotoCenter直前
 
+  // 中央への移動
+  digitalWrite(LED_BUILTIN, LOW); // gotoCenter開始: 点灯 (LOW=ON)
   Serial.println("Moving to center...");
-  xyControl.gotoCenter(); // 中央へ移動
+  xyControl.gotoCenter();          // 中央へ移動
+  digitalWrite(LED_BUILTIN, HIGH); // gotoCenter完了: 消灯 (HIGH=OFF)
   Serial.println("Center reached.");
 
   blinkLED(4); // 4回点滅: Center移動完了、通信初期化直前
