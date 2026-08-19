@@ -94,23 +94,21 @@ void setup() {
 #if defined(ARDUINO_UNO_Q)
   Bridge.begin();
 
-  Bridge.provide("py2mcu", [](float x, float y) {
+  Bridge.provide("py2mcu", [](float tx, float ty, float bx, float by) {
     k_mutex_lock(&head_mutex, K_FOREVER);
-    new_head_pos.x = constrain(x, -1.0f, 1.0f);
-    new_head_pos.y = constrain(y, 0.0f, 1.0f);
+    new_head_pos.x = constrain(tx, -1.0f, 1.0f);
+    new_head_pos.y = constrain(ty, 0.0f, 1.0f);
     k_mutex_unlock(&head_mutex);
+
+    k_mutex_lock(&ball_mutex, K_FOREVER);
+    ball_pos.x = bx;
+    ball_pos.y = by;
+    k_mutex_unlock(&ball_mutex);
 
     // データ受信のたびにLEDをトグルして、受信割り込みの動作を目視確認する
     static bool ledState = false;
     ledState = !ledState;
     digitalWrite(LED_BUILTIN, ledState ? LOW : HIGH); // LOW=ON, HIGH=OFF
-  });
-  Bridge.provide("ball", [](float x, float y) {
-    // 割り込みスレッドでのクラッシュを防ぐため、ここでは座標の保存のみ行う
-    k_mutex_lock(&ball_mutex, K_FOREVER);
-    ball_pos.x = x;
-    ball_pos.y = y;
-    k_mutex_unlock(&ball_mutex);
   });
 
   Monitor.begin(); // クラッシュ回避のためコメントアウト
@@ -137,6 +135,9 @@ void loop() {
 
   now = millis();
   if (now - last_update_ms < CYCLE_ms) {
+#if defined(ARDUINO_UNO_Q)
+    k_yield(); // Bridge等の通信処理スレッドにCPU時間を譲る
+#endif
     return;
   }
   last_update_ms = now;

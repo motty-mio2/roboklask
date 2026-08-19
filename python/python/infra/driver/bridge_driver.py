@@ -22,10 +22,10 @@ class BridgeDriver(BaseDriver):
         self.predict = Runtime(use_onnx=use_onnx)
         Bridge.provide("mcu2py", self.mcu2py)
 
-    def py2mcu(self, command: str, data: RobotXY) -> Any:
+    def py2mcu(self, command: str, target: RobotXY, ball: RobotXY) -> Any:
         """Call a command on the Arduino Bridge."""
-        logger.debug(f"TX target -> MCU: x={data.x:.4f}, y={data.y:.4f}")
-        self.bridge.notify(command, data.x, data.y)
+        logger.debug(f"TX target & ball -> MCU: tx={target.x:.4f}, ty={target.y:.4f}, bx={ball.x:.4f}, by={ball.y:.4f}")
+        self.bridge.notify(command, target.x, target.y, ball.x, ball.y)
 
     def mcu2py(self, st_x: float, st_y: float) -> Any:
         logger.debug(f"RX feedback <- MCU: x={st_x:.4f}, y={st_y:.4f}")
@@ -39,9 +39,7 @@ class BridgeDriver(BaseDriver):
             ba = self.shared.ball
 
         resp = self.predict.predict(ba, st)
-        self.py2mcu("py2mcu", resp)
-        logger.debug(f"TX ball -> MCU: x={ba.x:.4f}, y={ba.y:.4f}")
-        self.bridge.notify("ball", ba.x, ba.y)
+        self.py2mcu("py2mcu", resp, ba)
 
     def run(self) -> None:
         """Run the BridgeDriver."""
