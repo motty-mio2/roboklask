@@ -141,7 +141,7 @@ void loop() {
   now = millis();
   if (now - last_update_ms < CYCLE_ms) {
 #if defined(ARDUINO_UNO_Q)
-    k_yield(); // Bridge等の通信処理スレッドにCPU時間を譲る
+    safeUpdate(); // Bridgeの受信処理を直接実行してキューイングを防止する
 #endif
     return;
   }
