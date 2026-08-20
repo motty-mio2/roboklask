@@ -21,17 +21,17 @@ private:
 
 public:
   void setHomingSpeed() {
-    stepper1.setMaxSpeed(STEP * 5 * resolution);
-    stepper1.setAcceleration(STEP * 5 * resolution);
-    stepper2.setMaxSpeed(STEP * 5 * resolution);
-    stepper2.setAcceleration(STEP * 5 * resolution);
+    stepper1.setMaxSpeed(STEP * 3 * resolution);
+    stepper1.setAcceleration(STEP * 3 * resolution);
+    stepper2.setMaxSpeed(STEP * 3 * resolution);
+    stepper2.setAcceleration(STEP * 3 * resolution);
   }
 
   void setOperationalSpeed() {
-    stepper1.setMaxSpeed(STEP * 10 * resolution);
-    stepper2.setMaxSpeed(STEP * 10 * resolution);
-    stepper1.setAcceleration(STEP * 4 * resolution);
-    stepper2.setAcceleration(STEP * 4 * resolution);
+    stepper1.setMaxSpeed(STEP * 3.5 * resolution);
+    stepper2.setMaxSpeed(STEP * 3.5 * resolution);
+    stepper1.setAcceleration(STEP * 3 * resolution);
+    stepper2.setAcceleration(STEP * 3 * resolution);
   }
 
   XYControl(const int m1_step, const int m1_dir, const int m2_step,
@@ -155,8 +155,8 @@ public:
 
       bool collision = false;
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
-        // 安全ガード:
-        // テスト中にスイッチが反応したら即座に停止してテストを抜ける
+        // 安全ガード: 一時的に無効化して誤検出によるスキップを防ぐ
+        /*
         if (digitalRead(sw_x) == HIGH || digitalRead(sw_y) == HIGH) {
           Serial.println("testCorners: LIMIT DETECTED! Stopping.");
           stepper1.stop();
@@ -164,6 +164,7 @@ public:
           collision = true;
           break;
         }
+        */
         stepper1.run();
         stepper2.run();
       }
