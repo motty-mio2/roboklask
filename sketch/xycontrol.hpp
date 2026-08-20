@@ -49,12 +49,12 @@ public:
     // ==========================================
     // STEP 1: 左右リセット (SW_X が HIGH になるまでマイナス駆動)
     // ==========================================
+    // 配線反転により、これが物理的な左右リセット方向になります
+    // 大きな目的地を指定して、スムーズに加速・巡航させます
+    stepper1.moveTo(-10000 * resolution);
+    stepper2.moveTo(10000 * resolution);
+
     while (digitalRead(sw_x) == LOW) {
-      if (stepper1.distanceToGo() == 0 && stepper2.distanceToGo() == 0) {
-        // 配線反転により、これが物理的な左右リセット方向になります
-        stepper1.move(+HOMING_CHUNK); // (-)
-        stepper2.move(-HOMING_CHUNK); // (+)
-      }
       stepper1.run();
       stepper2.run();
     }
@@ -62,8 +62,9 @@ public:
     stepper1.stop();
     stepper2.stop();
 
-    stepper1.move(STEP_BACK);
-    stepper2.move(-STEP_BACK);
+    // スイッチ解放（プラス側へ戻す）
+    stepper1.move(STEP_BACK * resolution);
+    stepper2.move(-STEP_BACK * resolution);
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       stepper1.run();
       stepper2.run();
@@ -73,12 +74,11 @@ public:
     // ==========================================
     // STEP 2: 前後リセット (SW_Y が HIGH になるまでマイナス駆動)
     // ==========================================
+    // 両方マイナス駆動
+    stepper1.moveTo(-10000 * resolution);
+    stepper2.moveTo(-10000 * resolution);
+
     while (digitalRead(sw_y) == LOW) {
-      if (stepper1.distanceToGo() == 0 && stepper2.distanceToGo() == 0) {
-        // 配線反転により、これが物理的な前後リセット方向になります
-        stepper1.move(HOMING_CHUNK); // (-)
-        stepper2.move(HOMING_CHUNK); // (-)
-      }
       stepper1.run();
       stepper2.run();
     }
@@ -86,9 +86,9 @@ public:
     stepper1.stop();
     stepper2.stop();
 
-    // スイッチ解放（プラス側へ100戻す）
-    stepper1.move(STEP_BACK);
-    stepper2.move(STEP_BACK);
+    // スイッチ解放（プラス側へ戻す）
+    stepper1.move(STEP_BACK * resolution);
+    stepper2.move(STEP_BACK * resolution);
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       stepper1.run();
       stepper2.run();
@@ -221,8 +221,8 @@ public:
       stepper1.stop();
       stepper2.stop();
       // 逃げる方向に移動 (sw_x から離れる)
-      stepper1.move(STEP_BACK);
-      stepper2.move(-STEP_BACK);
+      stepper1.move(STEP_BACK * resolution);
+      stepper2.move(-STEP_BACK * resolution);
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
@@ -236,8 +236,8 @@ public:
       stepper1.stop();
       stepper2.stop();
       // 逃げる方向に移動 (sw_y から離れる)
-      stepper1.move(STEP_BACK);
-      stepper2.move(STEP_BACK);
+      stepper1.move(STEP_BACK * resolution);
+      stepper2.move(STEP_BACK * resolution);
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
