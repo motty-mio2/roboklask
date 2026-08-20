@@ -21,10 +21,10 @@ private:
 
 public:
   void setHomingSpeed() {
-    stepper1.setMaxSpeed(STEP * 3 * resolution);
-    stepper1.setAcceleration(STEP * 3 * resolution);
-    stepper2.setMaxSpeed(STEP * 3 * resolution);
-    stepper2.setAcceleration(STEP * 3 * resolution);
+    stepper1.setMaxSpeed(STEP * 0.5 * resolution);
+    stepper1.setAcceleration(STEP * 1.0 * resolution);
+    stepper2.setMaxSpeed(STEP * 0.5 * resolution);
+    stepper2.setAcceleration(STEP * 1.0 * resolution);
   }
 
   void setOperationalSpeed() {
@@ -59,8 +59,9 @@ public:
       stepper2.run();
     }
 
-    stepper1.stop();
-    stepper2.stop();
+    // 即座にパルス送信を終了する（減速のためのオーバーランを防ぐ）
+    stepper1.setCurrentPosition(stepper1.currentPosition());
+    stepper2.setCurrentPosition(stepper2.currentPosition());
 
     // スイッチ解放（プラス側へ戻す）
     stepper1.move(STEP_BACK * resolution);
@@ -83,8 +84,9 @@ public:
       stepper2.run();
     }
 
-    stepper1.stop();
-    stepper2.stop();
+    // 即座にパルス送信を終了する（減速のためのオーバーランを防ぐ）
+    stepper1.setCurrentPosition(stepper1.currentPosition());
+    stepper2.setCurrentPosition(stepper2.currentPosition());
 
     // スイッチ解放（プラス側へ戻す）
     stepper1.move(STEP_BACK * resolution);
