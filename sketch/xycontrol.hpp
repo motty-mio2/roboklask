@@ -197,25 +197,42 @@ public:
     pos.y = (float)sy / YSTEP;
   }
 
-  void resetCoordinates() {
-    stepper1.setCurrentPosition(0);
-    stepper2.setCurrentPosition(0);
-  }
-
   void resetX() {
-    long s1 = stepper1.currentPosition();
-    long s2 = stepper2.currentPosition();
-    long sy_steps = (s1 + s2) / 2;
-    stepper1.setCurrentPosition(sy_steps);
-    stepper2.setCurrentPosition(sy_steps);
+    // sw_x に激突して PHYSICAL_BACK 戻った状態で呼ばれる。
+    // この位置の x 座標を (PHYSICAL_BACK - STEP_BACK) と定義し、y
+    // 座標は現在の値を保持する。 H-bot: x = (s1 - s2)/(2*res), y = (s1 +
+    // s2)/(2*res)
+    long current_s1 = stepper1.currentPosition();
+    long current_s2 = stepper2.currentPosition();
+    long current_y = (current_s1 + current_s2) / (2 * resolution);
+    long setup_x = PHYSICAL_BACK - STEP_BACK;
+
+    stepper1.setCurrentPosition((setup_x + current_y) * resolution);
+    stepper2.setCurrentPosition((-setup_x + current_y) * resolution);
   }
 
   void resetY() {
-    long s1 = stepper1.currentPosition();
-    long s2 = stepper2.currentPosition();
-    long sx_steps = (s1 - s2) / 2;
-    stepper1.setCurrentPosition(sx_steps);
-    stepper2.setCurrentPosition(-sx_steps);
+    // sw_y に激突して PHYSICAL_BACK 戻った状態で呼ばれる。
+    // この位置の y 座標を (PHYSICAL_BACK - STEP_BACK) と定義し、x
+    // 座標は現在の値を保持する。
+    long current_s1 = stepper1.currentPosition();
+    long current_s2 = stepper2.currentPosition();
+    long current_x = (current_s1 - current_s2) / (2 * resolution);
+    long setup_y = PHYSICAL_BACK - STEP_BACK;
+
+    stepper1.setCurrentPosition((current_x + setup_y) * resolution);
+    stepper2.setCurrentPosition((-current_x + setup_y) * resolution);
+  }
+
+  void resetCoordinates() {
+    // 左右・前後ともに PHYSICAL_BACK 戻った位置で呼ばれる。
+    // この位置の座標を x = (PHYSICAL_BACK - STEP_BACK), y = (PHYSICAL_BACK -
+    // STEP_BACK) と定義する。
+    long setup_x = PHYSICAL_BACK - STEP_BACK;
+    long setup_y = PHYSICAL_BACK - STEP_BACK;
+
+    stepper1.setCurrentPosition((setup_x + setup_y) * resolution);
+    stepper2.setCurrentPosition((-setup_x + setup_y) * resolution);
   }
 
   void run() {
