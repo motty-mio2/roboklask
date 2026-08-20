@@ -64,8 +64,8 @@ public:
     stepper2.setCurrentPosition(stepper2.currentPosition());
 
     // スイッチ解放（プラス側へ戻す）
-    stepper1.move(STEP_BACK * resolution);
-    stepper2.move(-STEP_BACK * resolution);
+    stepper1.move(PHYSICAL_BACK * resolution);
+    stepper2.move(-PHYSICAL_BACK * resolution);
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       stepper1.run();
       stepper2.run();
@@ -89,8 +89,8 @@ public:
     stepper2.setCurrentPosition(stepper2.currentPosition());
 
     // スイッチ解放（プラス側へ戻す）
-    stepper1.move(STEP_BACK * resolution);
-    stepper2.move(STEP_BACK * resolution);
+    stepper1.move(PHYSICAL_BACK * resolution);
+    stepper2.move(PHYSICAL_BACK * resolution);
     while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
       stepper1.run();
       stepper2.run();
