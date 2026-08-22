@@ -178,7 +178,6 @@ public:
     }
 
     Serial.println("testCorners: restoring operational speed");
-    setOperationalSpeed(); // テスト完了後に本番用速度に戻す
   }
 
   void getCurrentXY(Position &pos) {
