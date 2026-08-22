@@ -206,13 +206,13 @@ public:
 
   void resetX() {
     // sw_x に激突して PHYSICAL_BACK 戻った状態で呼ばれる。
-    // この位置の x 座標を (PHYSICAL_BACK - STEP_BACK) と定義し、y
+    // この位置の x 座標を (PHYSICAL_BACK - STEP_BACK_X) と定義し、y
     // 座標は現在の値を保持する。 H-bot: x = (s1 - s2)/(2*res), y = (s1 +
     // s2)/(2*res)
     long current_s1 = stepper1.currentPosition();
     long current_s2 = stepper2.currentPosition();
     long current_y = (current_s1 + current_s2) / (2 * resolution);
-    long setup_x = PHYSICAL_BACK - STEP_BACK;
+    long setup_x = PHYSICAL_BACK - STEP_BACK_X;
 
     stepper1.setCurrentPosition((setup_x + current_y) * resolution);
     stepper2.setCurrentPosition((-setup_x + current_y) * resolution);
@@ -220,12 +220,12 @@ public:
 
   void resetY() {
     // sw_y に激突して PHYSICAL_BACK 戻った状態で呼ばれる。
-    // この位置の y 座標を (PHYSICAL_BACK - STEP_BACK) と定義し、x
+    // この位置の y 座標を (PHYSICAL_BACK - STEP_BACK_Y) と定義し、x
     // 座標は現在の値を保持する。
     long current_s1 = stepper1.currentPosition();
     long current_s2 = stepper2.currentPosition();
     long current_x = (current_s1 - current_s2) / (2 * resolution);
-    long setup_y = PHYSICAL_BACK - STEP_BACK;
+    long setup_y = PHYSICAL_BACK - STEP_BACK_Y;
 
     stepper1.setCurrentPosition((current_x + setup_y) * resolution);
     stepper2.setCurrentPosition((-current_x + setup_y) * resolution);
@@ -233,10 +233,10 @@ public:
 
   void resetCoordinates() {
     // 左右・前後ともに PHYSICAL_BACK 戻った位置で呼ばれる。
-    // この位置の座標を x = (PHYSICAL_BACK - STEP_BACK), y = (PHYSICAL_BACK -
-    // STEP_BACK) と定義する。
-    long setup_x = PHYSICAL_BACK - STEP_BACK;
-    long setup_y = PHYSICAL_BACK - STEP_BACK;
+    // この位置の座標を x = (PHYSICAL_BACK - STEP_BACK_X), y = (PHYSICAL_BACK -
+    // STEP_BACK_Y) と定義する。
+    long setup_x = PHYSICAL_BACK - STEP_BACK_X;
+    long setup_y = PHYSICAL_BACK - STEP_BACK_Y;
 
     stepper1.setCurrentPosition((setup_x + setup_y) * resolution);
     stepper2.setCurrentPosition((-setup_x + setup_y) * resolution);
@@ -247,8 +247,8 @@ public:
       stepper1.stop();
       stepper2.stop();
       // 逃げる方向に移動 (sw_x から離れる)
-      stepper1.move(STEP_BACK * resolution);
-      stepper2.move(-STEP_BACK * resolution);
+      stepper1.move(STEP_BACK_X * resolution);
+      stepper2.move(-STEP_BACK_X * resolution);
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
@@ -262,8 +262,8 @@ public:
       stepper1.stop();
       stepper2.stop();
       // 逃げる方向に移動 (sw_y から離れる)
-      stepper1.move(STEP_BACK * resolution);
-      stepper2.move(STEP_BACK * resolution);
+      stepper1.move(STEP_BACK_Y * resolution);
+      stepper2.move(STEP_BACK_Y * resolution);
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
