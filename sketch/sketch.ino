@@ -132,58 +132,52 @@ void loop() {
   unsigned long last_yield_ms = 0;
 
   while (true) {
-    // 1.
-    // モーターのステップを更新（最優先・システムオーバーヘッドなしで全力でポーリング）
+    // 1. モーターのステップを更新（最優先・全力でポーリング）
     xyControl.run();
 
     unsigned long current_time = millis();
 
-    // 2. 33msの制御・通信周期の処理
-    if (current_time - last_update_ms >= CYCLE_ms) {
-      last_update_ms = current_time;
-
-      xyControl.getCurrentXY(head_pos);
-
+    // 2.
+    // 33msに満たない場合は、通信受信とyieldのみ実行して即ループの先頭に戻る(continue)
+    if (current_time - last_update_ms < CYCLE_ms) {
 #if defined(ARDUINO_UNO_Q)
-      Bridge.notify("mcu2py", head_pos.x, head_pos.y);
-
-      // 割り込みスレッドで更新されたターゲット座標を安全にコピーして、モーター制御に反映する
-      k_mutex_lock(&head_mutex, K_FOREVER);
-      local_new_head_pos = new_head_pos;
-      k_mutex_unlock(&head_mutex);
-      xyControl.move(local_new_head_pos);
-
-      // LED Matrixの描画は、安全なメインスレッド(loop)側で実行する
-      k_mutex_lock(&ball_mutex, K_FOREVER);
-      local_ball_pos = ball_pos;
-      k_mutex_unlock(&ball_mutex);
-      xy(matrix, local_ball_pos.x, local_ball_pos.y);
+      if (Serial1.available() > 0) {
+        safeUpdate();
+      }
+      if (current_time - last_yield_ms >= 1) {
+        last_yield_ms = current_time;
+        k_yield();
+      }
 #endif
+      continue;
     }
+    last_update_ms = current_time;
+
+    // 3. 33ms経過時のメイン制御処理
+    xyControl.getCurrentXY(head_pos);
 
 #if defined(ARDUINO_UNO_Q)
-    // 3.
-    // 通信バッファの同期的な読み込み（シリアルバッファにデータがある時のみ実行）
-    if (Serial1.available() > 0) {
-      safeUpdate();
-    }
+    Bridge.notify("mcu2py", head_pos.x, head_pos.y);
 
-    // 4. Zephyr RTOS
-    // の他スレッド（シリアル受信など）へのCPU明け渡し（1msに1回）
-    if (current_time - last_yield_ms >= 1) {
-      last_yield_ms = current_time;
-      k_yield();
-    }
+    // 割り込みスレッドで更新されたターゲット座標を安全にコピーして、モーター制御に反映する
+    k_mutex_lock(&head_mutex, K_FOREVER);
+    local_new_head_pos = new_head_pos;
+    k_mutex_unlock(&head_mutex);
+    xyControl.move(local_new_head_pos);
+
+    // LED Matrixの描画は、安全なメインスレッド(loop)側で実行する
+    k_mutex_lock(&ball_mutex, K_FOREVER);
+    local_ball_pos = ball_pos;
+    k_mutex_unlock(&ball_mutex);
+    xy(matrix, local_ball_pos.x, local_ball_pos.y);
 #elif defined(ARDUINO_MINIMA)
     // Minima専用処理
-    if (current_time - last_update_ms >= CYCLE_ms) {
-      if (bridge.receive(new_head_pos)) {
-        static bool ledState = false;
-        ledState = !ledState;
-      }
-      bridge.sendPosition(head_pos);
-      xyControl.move(new_head_pos);
+    if (bridge.receive(new_head_pos)) {
+      static bool ledState = false;
+      ledState = !ledState;
     }
+    bridge.sendPosition(head_pos);
+    xyControl.move(new_head_pos);
 #endif
   }
 }
