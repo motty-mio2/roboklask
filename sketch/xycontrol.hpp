@@ -18,6 +18,8 @@ private:
   AccelStepper stepper2;
   int sw_x;
   int sw_y;
+  long last_target_s1 = -999999;
+  long last_target_s2 = -999999;
 
 public:
   void setHomingSpeed() {
@@ -120,9 +122,17 @@ public:
     long target_step_x = (long)(XSTEP * x_0_to_1);
     long target_step_y = (long)(YSTEP * clipped_y);
 
-    // 3. モーターに目標絶対座標を指示
-    stepper1.moveTo((target_step_x + target_step_y) * resolution);
-    stepper2.moveTo((-target_step_x + target_step_y) * resolution);
+    long target_s1 = (target_step_x + target_step_y) * resolution;
+    long target_s2 = (-target_step_x + target_step_y) * resolution;
+
+    // 3. 実際の目標ステップ位置が変化したときだけ moveTo
+    // を実行し、加速リセットを防ぐ
+    if (target_s1 != last_target_s1 || target_s2 != last_target_s2) {
+      stepper1.moveTo(target_s1);
+      stepper2.moveTo(target_s2);
+      last_target_s1 = target_s1;
+      last_target_s2 = target_s2;
+    }
   }
 
   void gotoCenter() {

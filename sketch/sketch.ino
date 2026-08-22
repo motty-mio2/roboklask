@@ -153,13 +153,7 @@ void loop() {
   k_mutex_lock(&head_mutex, K_FOREVER);
   local_new_head_pos = new_head_pos;
   k_mutex_unlock(&head_mutex);
-
-  static Position last_target_pos = {-999.0f, -999.0f};
-  if (local_new_head_pos.x != last_target_pos.x ||
-      local_new_head_pos.y != last_target_pos.y) {
-    xyControl.move(local_new_head_pos);
-    last_target_pos = local_new_head_pos;
-  }
+  xyControl.move(local_new_head_pos);
 
   // LED Matrixの描画は、安全なメインスレッド(loop)側で実行する
   k_mutex_lock(&ball_mutex, K_FOREVER);
