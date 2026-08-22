@@ -19,7 +19,7 @@ class Runtime:
                 / "roboklask"
                 / "klask_ppo_model.onnx"
             )
-            self.session = ort.InferenceSession(self.model_path)
+            self.session = ort.InferenceSession(self.model_path)  # type: ignore
 
         self.past_striker: collections.deque[RobotXY] = collections.deque(
             [RobotXY() for _ in range(self.MAX_LEN)],

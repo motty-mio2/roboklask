@@ -148,7 +148,7 @@ public:
     Serial.println("testCorners: setting to operational (high) speed");
     setOperationalSpeed(); // テスト走行の速度を本番速度へ引き上げ
 
-    Position corners[] = {
+    const Position corners[] = {
         {-1.0f, 0.0f}, // 左手前
         {-1.0f, 1.0f}, // 左奥
         {1.0f, 1.0f},  // 右奥
@@ -163,25 +163,11 @@ public:
 
       move(corner);
 
-      bool collision = false;
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
-        // 安全ガード: 一時的に無効化して誤検出によるスキップを防ぐ
-        /*
-        if (digitalRead(sw_x) == HIGH || digitalRead(sw_y) == HIGH) {
-          Serial.println("testCorners: LIMIT DETECTED! Stopping.");
-          stepper1.stop();
-          stepper2.stop();
-          collision = true;
-          break;
-        }
-        */
         stepper1.run();
         stepper2.run();
       }
 
-      if (collision) {
-        break;
-      }
       delay(1000); // 動作確認のために各角で1秒静止
     }
 

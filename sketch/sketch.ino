@@ -129,7 +129,9 @@ Position local_new_head_pos;
 Position local_ball_pos;
 
 void loop() {
+#if defined(ARDUINO_UNO_Q)
   unsigned long last_yield_ms = 0;
+#endif
 
   while (true) {
     // 1. モーターのステップを更新（最優先・全力でポーリング）

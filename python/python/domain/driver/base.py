@@ -12,9 +12,9 @@ class BaseDriver(ABC):
             log_file.write(msg + "\n")
 
     @abstractmethod
-    def py2mcu(self, command: str, data: RobotXY) -> Any:
+    def py2mcu(self, command: str, target: RobotXY, ball: RobotXY) -> Any:
         """Call a command on the Arduino Bridge."""
-        self.logger(f"Calling command: {command} with data: {data}")
+        self.logger(f"Calling command: {command} with target: {target} and ball: {ball}")
 
         raise NotImplementedError("Subclasses must implement the py2mcu method.")
 
