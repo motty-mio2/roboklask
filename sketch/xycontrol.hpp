@@ -4,8 +4,12 @@
 #include <AccelStepper.h>
 #include <Arduino.h>
 
+#if defined(ARDUINO_UNO_Q)
+#include <zephyr/kernel.h>
+extern void safeUpdate();
+#endif
+
 #include "motor_config.h"
-#
 
 struct Position {
   float x;
@@ -239,6 +243,12 @@ public:
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
+#if defined(ARDUINO_UNO_Q)
+        if (Serial1.available() > 0) {
+          safeUpdate();
+        }
+        k_yield();
+#endif
       }
       delay(100);
       resetX();
@@ -255,6 +265,12 @@ public:
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
+#if defined(ARDUINO_UNO_Q)
+        if (Serial1.available() > 0) {
+          safeUpdate();
+        }
+        k_yield();
+#endif
       }
       delay(100);
       resetY();
