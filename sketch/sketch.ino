@@ -88,7 +88,16 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH); // 四隅テスト完了: 消灯 (HIGH=OFF)
   Serial.println("Test corners finished.");
 
-  blinkLED(3); // 3回点滅: Homing&Test完了、通信初期化直前
+  blinkLED(3); // 3回点滅: Homing&Test完了、gotoCenter直前
+
+  // 中央への移動
+  digitalWrite(LED_BUILTIN, LOW); // gotoCenter開始: 点灯 (LOW=ON)
+  Serial.println("Moving to center...");
+  xyControl.gotoCenter();          // 中央へ移動
+  digitalWrite(LED_BUILTIN, HIGH); // gotoCenter完了: 消灯 (HIGH=OFF)
+  Serial.println("Center reached.");
+
+  blinkLED(4); // 4回点滅: Center移動完了、通信初期化直前
 
   // 3. モーターのすべての初期位置合わせが完了した後に、通信を開始する
 #if defined(ARDUINO_UNO_Q)
