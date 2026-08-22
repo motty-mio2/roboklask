@@ -94,15 +94,17 @@ void setup() {
 #if defined(ARDUINO_UNO_Q)
   Bridge.begin();
 
-  Bridge.provide("py2mcu", [](float tx, float ty, float bx, float by) {
+  Bridge.provide("py2mcu", [](std::vector<float> data) {
+    if (data.size() < 4)
+      return;
     k_mutex_lock(&head_mutex, K_FOREVER);
-    new_head_pos.x = constrain(tx, -1.0f, 1.0f);
-    new_head_pos.y = constrain(ty, 0.0f, 1.0f);
+    new_head_pos.x = constrain(data[0], -1.0f, 1.0f);
+    new_head_pos.y = constrain(data[1], 0.0f, 1.0f);
     k_mutex_unlock(&head_mutex);
 
     k_mutex_lock(&ball_mutex, K_FOREVER);
-    ball_pos.x = bx;
-    ball_pos.y = by;
+    ball_pos.x = data[2];
+    ball_pos.y = data[3];
     k_mutex_unlock(&ball_mutex);
 
     // データ受信のたびにLEDをトグルして、受信割り込みの動作を目視確認する
