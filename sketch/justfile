@@ -17,6 +17,9 @@ format:
 format-check:
     find {{ target }} -exec clang-format --Werror --dry-run -i {} +;
 
+cppcheck:
+    find {{ target }} -exec cppcheck --enable=warning,style,performance,portability --inline-suppr --language=c++ --error-exitcode=1 {} +;
+
 build profile='default':
     arduino-cli compile -m {{profile}} .
 

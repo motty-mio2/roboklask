@@ -19,7 +19,7 @@ class OnnxInferenceEngine:
         if self.session is not None:
             return
 
-        self.session = ort.InferenceSession(self.model_path)
+        self.session = ort.InferenceSession(self.model_path)  # type: ignore
         print(f"ONNX Inference Session loaded successfully from {self.model_path}")
 
     def infer(self, ball: RobotXY, striker: RobotXY) -> RobotXY | None:

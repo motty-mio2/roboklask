@@ -2,9 +2,10 @@
 clang-format = "latest"
 arduino-cli = "latest"
 just = "latest"
+"pipx:cppcheck" = "latest"
 
 [tasks.lint]
-run = "just format-check"
+run = ["just format-check", "just cppcheck"]
 
 [tasks.format]
 run = "just format"
