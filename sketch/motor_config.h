@@ -1,13 +1,13 @@
 #ifndef MOTOR_CONFIG_H
 #define MOTOR_CONFIG_H_
 
-constexpr int setM0 = false;
+constexpr int setM0 = true;
 constexpr int setM1 = true;
 constexpr int setM2 = false;
 
 // 1回転あたりのベースステップ数
 constexpr int STEP = 400;
-constexpr int resolution = 4;
+constexpr int resolution = 8;
 
 // 盤面の可動最大ステップ数
 constexpr int STEP_BACK = 100;     // ソフトウェアの可動範囲マージン
