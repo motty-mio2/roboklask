@@ -25,7 +25,7 @@ class BridgeDriver(BaseDriver):
     def py2mcu(self, command: str, target: RobotXY, ball: RobotXY) -> Any:
         """Call a command on the Arduino Bridge."""
         logger.debug(f"TX target & ball -> MCU: tx={target.x:.4f}, ty={target.y:.4f}, bx={ball.x:.4f}, by={ball.y:.4f}")
-        self.bridge.notify(command, target.x, target.y, ball.x, ball.y)
+        self.bridge.notify(command, [target.x, target.y, ball.x, ball.y])
 
     def mcu2py(self, st_x: float, st_y: float) -> Any:
         logger.debug(f"RX feedback <- MCU: x={st_x:.4f}, y={st_y:.4f}")
