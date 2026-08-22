@@ -1,28 +1,37 @@
 # 🏓 Roboklask: Autonomous AI-Powered Klask-Playing Robot
 
-Welcome to **Roboklask**, a real-time, hardware-in-the-loop autonomous robotics system designed to play **Klask**—a magnetic table hockey game. 
+[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![Zephyr RTOS](https://img.shields.io/badge/OS-Zephyr_RTOS-orange.svg)](https://zephyrproject.org/)
+[![Hardware](https://img.shields.io/badge/Hardware-Arduino_UNO_R4-red.svg)](https://store.arduino.cc/)
+[![Package Manager](https://img.shields.io/badge/package_manager-uv-green.svg)](https://github.com/astral-sh/uv)
+[![Code Style](https://img.shields.io/badge/code%20style-ruff-black.svg)](https://github.com/astral-sh/ruff)
 
-This repository contains both the high-performance Arduino R4 firmware and the Python 3.13 computer vision / reinforcement learning companion app. The system utilizes real-time HSV tracking, an ONNX-optimized PPO (Proximal Policy Optimization) model, and low-latency Zephyr RTOS serial communications to achieve precise, lightning-fast striker control.
+Roboklask is an autonomous, real-time robotics system designed to play **Klask**—a fast-paced, magnetic table hockey game. Combining high-speed computer vision, an ONNX-optimized reinforcement learning agent (PPO), and low-latency motor control, Roboklask plays autonomously against human opponents.
+
+[**👉 日本語版のREADMEはこちら (README_ja.md)**](./README_ja.md)
 
 ---
 
-## 🚀 Key Engineering Highlights
+## 📸 Demo & Hardware Overview
 
-### ⚡ Low-Latency & High-Frequency Step Generation (Zephyr RTOS)
-* **Custom Polling Loop**: The Arduino UNO R4 WiFi firmware runs on top of the Zephyr RTOS kernel. By bypassing the standard Arduino `loop()` return overhead through an internal `while(true)` infinite polling architecture, the firmware polls `AccelStepper::run()` at tens of kilohertz. This enables a step pulse output frequency of up to **16,000 steps/second** (with 1/8 microstepping resolution) and **25,600 steps/second²** acceleration.
-* **Thread Starvation Guard**: To prevent the RTOS communication and network threads from starving, a controlled `k_yield()` is triggered exactly once every 1 millisecond inside the high-frequency step generator loop.
+*(Place your robot gameplay video or GIF here!)*
+![Roboklask Table and Striker Concept](https://images.unsplash.com/photo-1546776310-eef45dd6d63c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3)
 
-### 🔌 Consolidated MessagePack-RPC over Serial
-* **Consolidated Commands**: To minimize serial overhead (default: 115200bps), target striker coordinate updates and target ball coordinates are consolidated into a single custom RPC call (`py2mcu(tx, ty, bx, by)`), halving the number of transmitted packets.
-* **Queuing & Buffer Overflow Elimination**: Standard asynchronous MessagePack `notify` can cause packet congestion when the receiver falls behind. We solved this by implementing an active serial-buffer guard (`Serial1.available() > 0`) that triggers synchronized `safeUpdate()` calls during idle time, completely eliminating latency accumulation.
+### The Hardware Setup
+* **Structure**: Custom 2D H-bot XY Gantry.
+* **Actuators**: High-torque NEMA 17 Stepper Motors driven by DRV8825 motor drivers (configured at 1/8 microstepping).
+* **Brain**: Arduino UNO R4 WiFi running Zephyr RTOS.
+* **Vision**: OAK-D (DepthAI) or Intel RealSense stereo cameras capturing the table dynamics at 30+ FPS.
 
-### 🎯 High-Accuracy Calibration & Auto-Recovery
-* **Split Axis Calibration**: The physical limit switch release distance (`PHYSICAL_BACK = 300` steps) is split from the software boundary margins (`STEP_BACK_X`, `STEP_BACK_Y`). This maximizes the striker's physical range of motion (`XSTEP=2900`, `YSTEP=1400`) while preserving absolute homing safety.
-* **Auto-Calibration & Escape Math**: If a collision is detected during normal operation, the motors immediately trigger an escape sequence (backing off by `STEP_BACK_X`/`Y` steps) and dynamically recalibrate the MCU's internal step coordinates on the fly.
+---
 
-### 🧠 Vision & Reinforcement Learning (Python)
-* **HSV-based Blue Tracking**: Automatic field calibration optimized for dark lighting conditions. Detects coordinates of the board, ball, and striker.
-* **ONNX Inference Pipeline**: Evaluates the PPO model (`klask_ppo_model.onnx`) at **30Hz** (33ms interval) via ONNX Runtime using raw tracking coordinate inputs.
+## ✨ Features
+
+- 🧠 **PPO Reinforcement Learning**: Runs real-time inference on a Proximal Policy Optimization model (`klask_ppo_model.onnx`) via ONNX Runtime to make movement decisions.
+- ⚡ **Low-Latency step control**: Powered by Zephyr RTOS, achieving step frequencies of up to **16,000 steps/sec** with **25,600 steps/sec²** acceleration.
+- 🔌 **Unified MessagePack-RPC**: Low-overhead serial communication running at 30Hz, passing targets and receiving coordinate feedback synchronously.
+- 🎯 **Robust Computer Vision**: Real-time HSV-based blue color tracking that automatically calibrates itself to detect the board, ball, and striker under dark lighting conditions.
+- 🛡️ **Auto-Recalibration**: Dynamic limit switch detection (`resetX`/`resetY`) that recalibrates coordinate origins on the fly without stopping the game.
 
 ---
 
@@ -33,66 +42,53 @@ graph TD
     A[Camera: OAK-D / RealSense] -->|Raw Video Frames| B(Python Vision Tracker)
     B -->|HSV Coordinate Extraction| C(Motion Policy: Ball Tracking / PPO Model)
     C -->|Target Coords: X,Y | D(McuConnection / BridgeDriver)
-    D -->|MessagePack-RPC: py2mcu @ 30Hz| E[Arduino UNO R4 WiFi / Zephyr RTOS]
+    D -->|MessagePack-RPC @ 30Hz| E[Arduino UNO R4 WiFi / Zephyr RTOS]
     E -->|High Frequency step pulses| F[Motors: NEMA 17 / DRV8825]
-    F -->|Encoder Feedback| E
-    E -->|RPC: mcu2py @ 30Hz| D
-    D -->|Filtered Encoder Coordinates| B
+    E -->|Encoder Feedback @ 30Hz| D
 ```
 
-* **`sketch/`**: C++ firmware targeting `arduino:zephyr:unoq` (Arduino UNO R4 WiFi) or `arduino:samd:minima` (Arduino UNO R4 Minima).
-* **`python/`**: Python 3.13+ companion application managed with `uv` containing vision pipeline and PPO model inference.
+> [!TIP]
+> For a detailed look at our RTOS optimizations, serial-buffer flushing, and kinematics math, see the **[Technical Optimizations & Engineering Details](./docs/optimizations.md)** document.
 
 ---
 
-## 💻 Setup & Installation
+## 💻 Quickstart
 
-The project uses [mise](https://mise.jdx.dev/) as a polyglot task runner to manage environments.
+This project uses [mise](https://mise.jdx.dev/) as a polyglot task runner and environment manager.
 
-### 1. Prerequisite Toolchain
-Ensure you have `mise`, `git`, and `arduino-cli` installed.
-
-### 2. Python Environment Setup
+### 1. Installation
+Clone the repository and sync python dependencies:
 ```sh
-cd python
-uv sync                  # Installs python virtualenv and dependencies
-mise run export          # Generates requirements.txt from uv.lock
+git clone https://github.com/motty-mio2/roboklask.git
+cd roboklask/python
+uv sync
 ```
 
-### 3. Compile Firmware
+### 2. Compile and Upload Firmware
+Compile the C++ Arduino sketch:
 ```sh
-cd sketch
-mise run build           # Compiles firmware for Arduino R4 (UNO Q)
+cd ../sketch
+mise run build
 ```
 
----
-
-## 🎮 How to Run
-
-### Run Formatting and Lints
+### 3. Run the AI Agent
+Start the vision loop (requires a camera and serial connection):
 ```sh
-mise run format          # Runs clang-format, ruff format, and tombi format
-mise run lint            # Runs cppcheck, clang-format dry-run, ruff check, and pyright check
-```
-
-### Start the Vision & Motion Inference Pipeline
-Ensure your camera is connected via USB.
-```sh
-cd python
+cd ../python
 uv run python run_vision.py
 ```
 
-### Start Web UI (Manual Stepper Bridge Control)
+### 4. Run Formatting & Lints
+Keep the codebase clean:
 ```sh
-cd python
-uv run python main.py
+mise run format   # Format Python & C++ source files
+mise run lint     # Strict C++ static analysis and python type checks
 ```
 
 ---
 
-## ⚙️ Configuration (`.env`)
-All configuration variables are prefixed with `KLASK_` and defined in `python/src/viewer/config.py`:
-- `KLASK_OUTPUT_TYPE`: Communication channel (`none` / `uart` / `bridge`).
-- `KLASK_POLICY_TYPE`: Motion Strategy (`ball_tracking` / `ppo`).
-- `KLASK_CAMERA`: Camera Hardware (`oakd` / `realsense`).
-- `KLASK_CONFIDENCE_THRESHOLD`: Object detection confidence threshold (defaults to `0.5`).
+## 📁 Repository Structure
+
+* **`sketch/`**: C++ firmware targeting Arduino UNO R4 WiFi (UNO Q) and Arduino UNO R4 Minima.
+* **`python/`**: Python 3.13 companion app (ONNX inference, HSV tracking, Web UI).
+* **`docs/`**: Technical engineering documentation.
