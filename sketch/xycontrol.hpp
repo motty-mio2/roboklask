@@ -206,6 +206,8 @@ public:
 
     stepper1.setCurrentPosition((setup_x + current_y) * resolution);
     stepper2.setCurrentPosition((-setup_x + current_y) * resolution);
+    last_target_s1 = -999999;
+    last_target_s2 = -999999;
   }
 
   void resetY() {
@@ -219,6 +221,8 @@ public:
 
     stepper1.setCurrentPosition((current_x + setup_y) * resolution);
     stepper2.setCurrentPosition((-current_x + setup_y) * resolution);
+    last_target_s1 = -999999;
+    last_target_s2 = -999999;
   }
 
   void resetCoordinates() {
@@ -230,6 +234,8 @@ public:
 
     stepper1.setCurrentPosition((setup_x + setup_y) * resolution);
     stepper2.setCurrentPosition((-setup_x + setup_y) * resolution);
+    last_target_s1 = -999999;
+    last_target_s2 = -999999;
   }
 
   void run() {
