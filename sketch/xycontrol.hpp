@@ -232,9 +232,10 @@ public:
     if (digitalRead(sw_x) == HIGH) {
       stepper1.stop();
       stepper2.stop();
-      // 逃げる方向に移動 (sw_x から離れる)
-      stepper1.move(STEP_BACK_X * resolution);
-      stepper2.move(-STEP_BACK_X * resolution);
+      // 逃げる方向に移動 (sw_x から離れる) -
+      // Homingの戻り量に統一して座標補正を正確にする
+      stepper1.move(PHYSICAL_BACK * resolution);
+      stepper2.move(-PHYSICAL_BACK * resolution);
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
@@ -247,9 +248,10 @@ public:
     if (digitalRead(sw_y) == HIGH) {
       stepper1.stop();
       stepper2.stop();
-      // 逃げる方向に移動 (sw_y から離れる)
-      stepper1.move(STEP_BACK_Y * resolution);
-      stepper2.move(STEP_BACK_Y * resolution);
+      // 逃げる方向に移動 (sw_y から離れる) -
+      // Homingの戻り量に統一して座標補正を正確にする
+      stepper1.move(PHYSICAL_BACK * resolution);
+      stepper2.move(PHYSICAL_BACK * resolution);
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
