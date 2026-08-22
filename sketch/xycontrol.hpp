@@ -112,19 +112,50 @@ public:
 
   void move(const Position &pos) {
     // 1. 万が一範囲外の数値が来ても盤面から飛び出さないようにクリップする
-    // Xは -1.0 〜 1.0、Yは 0.0 〜 1.0
     float clipped_x = constrain(pos.x, -1.0f, 1.0f);
     float clipped_y = constrain(pos.y, 0.0f, 1.0f);
 
     // 2. 正規化座標を絶対ステップ数（0〜XSTEP/YSTEP）に変換する
-    // X軸: -1.0〜1.0 -> 0.0〜1.0 にマッピングし直してから変換
     float x_0_to_1 = (clipped_x + 1.0f) / 2.0f;
     long target_step_x = (long)(XSTEP * x_0_to_1);
     long target_step_y = (long)(YSTEP * clipped_y);
 
-    // 3. モーターに目標絶対座標を指示
-    stepper1.moveTo((target_step_x + target_step_y) * resolution);
-    stepper2.moveTo((-target_step_x + target_step_y) * resolution);
+    long target_s1 = (target_step_x + target_step_y) * resolution;
+    long target_s2 = (-target_step_x + target_step_y) * resolution;
+
+    // 3. 多軸同期（直線補間）:
+    // 移動距離の比率に応じて速度・加速度を動的にスケールダウンする
+    long ds1 = target_s1 - stepper1.currentPosition();
+    long ds2 = target_s2 - stepper2.currentPosition();
+    long abs_ds1 = abs(ds1);
+    long abs_ds2 = abs(ds2);
+
+    float max_speed_base = STEP * 5.0 * resolution;
+    float accel_base = STEP * 8.0 * resolution;
+
+    if (abs_ds1 > 0 || abs_ds2 > 0) {
+      if (abs_ds1 >= abs_ds2) {
+        // Motor 1 が基準軸（最長移動）
+        stepper1.setMaxSpeed(max_speed_base);
+        stepper1.setAcceleration(accel_base);
+
+        float ratio = (float)abs_ds2 / (float)abs_ds1;
+        stepper2.setMaxSpeed(max_speed_base * ratio);
+        stepper2.setAcceleration(accel_base * ratio);
+      } else {
+        // Motor 2 が基準軸（最長移動）
+        stepper2.setMaxSpeed(max_speed_base);
+        stepper2.setAcceleration(accel_base);
+
+        float ratio = (float)abs_ds1 / (float)abs_ds2;
+        stepper1.setMaxSpeed(max_speed_base * ratio);
+        stepper1.setAcceleration(accel_base * ratio);
+      }
+    }
+
+    // 4. モーターに目標絶対座標を指示
+    stepper1.moveTo(target_s1);
+    stepper2.moveTo(target_s2);
   }
 
   void gotoCenter() {
