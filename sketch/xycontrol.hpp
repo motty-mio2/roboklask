@@ -51,8 +51,8 @@ public:
     // ==========================================
     // 配線反転により、これが物理的な左右リセット方向になります
     // 大きな目的地を指定して、スムーズに加速・巡航させます
-    stepper1.moveTo(-10000 * resolution);
-    stepper2.moveTo(10000 * resolution);
+    stepper1.move(-10000 * resolution);
+    stepper2.move(10000 * resolution);
 
     while (digitalRead(sw_x) == LOW) {
       stepper1.run();
@@ -76,8 +76,8 @@ public:
     // STEP 2: 前後リセット (SW_Y が HIGH になるまでマイナス駆動)
     // ==========================================
     // 両方マイナス駆動
-    stepper1.moveTo(-10000 * resolution);
-    stepper2.moveTo(-10000 * resolution);
+    stepper1.move(-10000 * resolution);
+    stepper2.move(-10000 * resolution);
 
     while (digitalRead(sw_y) == LOW) {
       stepper1.run();
@@ -137,8 +137,8 @@ public:
   }
 
   void testCorners() {
-    Serial.println("testCorners: temporary setting to homing (low) speed");
-    setHomingSpeed(); // テスト中はベルト飛び・脱調防止のため低速に固定
+    Serial.println("testCorners: setting to operational (high) speed");
+    setOperationalSpeed(); // テスト走行の速度を本番速度へ引き上げ
 
     Position corners[] = {
         {-1.0f, 0.0f}, // 左手前
