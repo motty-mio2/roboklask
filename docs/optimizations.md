@@ -94,4 +94,4 @@ Homing absolute coordinates via raw step offsets can lead to physical limit swit
   constexpr int YSTEP = 1500 * 2 + 100 - STEP_BACK_Y;
   ```
   This maximizes the playable area (`XSTEP=2900`, `YSTEP=1400`) while allowing the robot to calibrate its zero-point exactly `100` steps away from the physical switches.
-* **Dynamic Recalibration**: If a limit switch is triggered mid-game, the robot automatically backs off (`escapeX/Y`) and updates its absolute coordinate origin without stopping the game.
+* **Dynamic Recalibration & Non-Blocking Escape**: If a limit switch is triggered mid-game, the robot immediately stops and executes a backing-off routine (`escapeX/Y` by `PHYSICAL_BACK` steps). During this backing-off `while` loop, the code actively processes serial communications (`safeUpdate()`) and yields thread control (`k_yield()`) to prevent the Zephyr RTOS communication stacks from starving and dropping the connection. Afterwards, the MCU recalculates and overrides the absolute coordinates on the fly (`resetX/Y`) seamlessly.
