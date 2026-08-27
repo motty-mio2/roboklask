@@ -1,8 +1,8 @@
 # 🏓 Roboklask: AI駆動型 Klask 自律対戦ロボット
 
-[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.13+](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![Zephyr RTOS](https://img.shields.io/badge/OS-Zephyr_RTOS-orange.svg)](https://zephyrproject.org/)
-[![Hardware](https://img.shields.io/badge/Hardware-Arduino_UNO_R4-red.svg)](https://store.arduino.cc/)
+[![Hardware](https://img.shields.io/badge/Hardware-Arduino_UNO_Q-red.svg)](https://store.arduino.cc/)
 [![Package Manager](https://img.shields.io/badge/package_manager-uv-green.svg)](https://github.com/astral-sh/uv)
 [![Code Style](https://img.shields.io/badge/code%20style-ruff-black.svg)](https://github.com/astral-sh/ruff)
 
@@ -92,3 +92,10 @@ mise run lint     # C++ 静的解析 ＆ Python の厳密な型チェック
 * **`sketch/`**: Arduino UNO R4 WiFi (UNO Q) および Arduino UNO R4 Minima 向けのファームウェア。
 * **`python/`**: 推論、トラッキング、Web UI を含む Python アプリケーション。
 * **`docs/`**: 詳細な技術ドキュメント。
+
+## 関連リポジトリ
+
+- [Klask_PCB](https://github.com/motty-mio2/Klask_PCB)：独自設計のArduino UNO Q用Shield
+- [Klask Vision](https://github.com/motty-mio2/Klask_vision)：Klask用画像認識モデルの推論パッケージ
+  - [Klask Vision Learning](https://github.com/motty-mio2/Klask_vision_learning)：Klask用画像認識モデルの学習用
+- [Klask RL](https://github.com/motty-mio2/Klask_RL)：Klask用強化学習エージェント
