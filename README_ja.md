@@ -89,7 +89,7 @@ mise run lint     # C++ 静的解析 ＆ Python の厳密な型チェック
 
 ## 📁 ディレクトリ構造
 
-* **`sketch/`**: Arduino UNO Q 向けのファームウェア。
+* **`sketch/`**: Arduino UNO Q および Arduino UNO R4 Minima 向けのファームウェア。
 * **`python/`**: 推論、トラッキング、Web UI を含む Python アプリケーション。
 * **`docs/`**: 詳細な技術ドキュメント。
 
