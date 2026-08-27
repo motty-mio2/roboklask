@@ -15,7 +15,7 @@ Roboklask は、磁石で操作するアクションボードゲーム **「Klas
 ## 📸 デモ ＆ ハードウェア概要
 
 *(ここにロボットのプレイ動画やGIFを貼り付けてください！)*
-![Roboklask Table and Striker Concept](https://images.unsplash.com/photo-1546776310-eef45dd6d63c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3)
+![Roboklask Table and Striker Concept](./assets/roboklask.jpg)
 
 ### ハードウェア構成
 * **機構**: 2自由度の H-bot リンク式 XY ガントリー。
