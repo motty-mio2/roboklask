@@ -20,7 +20,7 @@ Roboklask は、磁石で操作するアクションボードゲーム **「Klas
 ### ハードウェア構成
 * **機構**: 2自由度の H-bot リンク式 XY ガントリー。
 * **アクチュエータ**: NEMA 17 ステッピングモーター ＆ DRV8825 モータードライバ (1/8マイクロステップ設定)。
-* **制御マイコン**: Arduino UNO R4 WiFi（OSとして Zephyr RTOS を採用）。
+* **制御マイコン**: Arduino UNO Q（OSとして Zephyr RTOS を採用）。
 * **ビジョンカメラ**: OAK-D (DepthAI) または Intel RealSense ステレオカメラ (30+ FPS)。
 
 ---
@@ -42,7 +42,7 @@ graph TD
     A[カメラ: OAK-D / RealSense] -->|Rawビデオフレーム| B(Python ビジョントラッカー)
     B -->|HSV 座標抽出| C(モーションポリシー: ボール追従 / PPOモデル)
     C -->|目標座標: X, Y| D(McuConnection / BridgeDriver)
-    D -->|MessagePack-RPC @ 30Hz| E[Arduino UNO R4 WiFi / Zephyr RTOS]
+    D -->|MessagePack-RPC @ 30Hz| E[Arduino UNO Q / Zephyr RTOS]
     E -->|高頻度ステップパルス出力| F[ステッピングモーター: NEMA 17 / DRV8825]
     E -->|エンコーダフィードバック @ 30Hz| D
 ```
@@ -89,7 +89,7 @@ mise run lint     # C++ 静的解析 ＆ Python の厳密な型チェック
 
 ## 📁 ディレクトリ構造
 
-* **`sketch/`**: Arduino UNO R4 WiFi (UNO Q) および Arduino UNO R4 Minima 向けのファームウェア。
+* **`sketch/`**: Arduino UNO Q 向けのファームウェア。
 * **`python/`**: 推論、トラッキング、Web UI を含む Python アプリケーション。
 * **`docs/`**: 詳細な技術ドキュメント。
 
