@@ -52,12 +52,17 @@ graph TD
 
 ---
 
-## 💻 クイックスタート
+## 💻 クイックスタート（Arduino AppLab）
+
+このPJをArduino AppLabで開くだけです！！
+
+## 🛠️ 代替セットアップ（デバッグ用）
 
 本プロジェクトは、多言語開発環境の管理に [mise](https://mise.jdx.dev/) を、Pythonのパッケージ管理に `uv` を採用しています。
 
 ### 1. インストール
 リポジトリをクローンし、Pythonの依存パッケージをインストールします：
+
 ```sh
 git clone https://github.com/motty-mio2/roboklask.git
 cd roboklask/python
