@@ -4,12 +4,8 @@
 #include <AccelStepper.h>
 #include <Arduino.h>
 
-#if defined(ARDUINO_UNO_Q)
-#include <zephyr/kernel.h>
-extern void safeUpdate();
-#endif
-
 #include "motor_config.h"
+#
 
 struct Position {
   float x;
@@ -236,19 +232,12 @@ public:
     if (digitalRead(sw_x) == HIGH) {
       stepper1.stop();
       stepper2.stop();
-      // 逃げる方向に移動 (sw_x から離れる) -
-      // Homingの戻り量に統一して座標補正を正確にする
-      stepper1.move(PHYSICAL_BACK * resolution);
-      stepper2.move(-PHYSICAL_BACK * resolution);
+      // 逃げる方向に移動 (sw_x から離れる)
+      stepper1.move(STEP_BACK_X * resolution);
+      stepper2.move(-STEP_BACK_X * resolution);
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
-#if defined(ARDUINO_UNO_Q)
-        if (Serial1.available() > 0) {
-          safeUpdate();
-        }
-        k_yield();
-#endif
       }
       delay(100);
       resetX();
@@ -258,19 +247,12 @@ public:
     if (digitalRead(sw_y) == HIGH) {
       stepper1.stop();
       stepper2.stop();
-      // 逃げる方向に移動 (sw_y から離れる) -
-      // Homingの戻り量に統一して座標補正を正確にする
-      stepper1.move(PHYSICAL_BACK * resolution);
-      stepper2.move(PHYSICAL_BACK * resolution);
+      // 逃げる方向に移動 (sw_y から離れる)
+      stepper1.move(STEP_BACK_Y * resolution);
+      stepper2.move(STEP_BACK_Y * resolution);
       while (stepper1.distanceToGo() != 0 || stepper2.distanceToGo() != 0) {
         stepper1.run();
         stepper2.run();
-#if defined(ARDUINO_UNO_Q)
-        if (Serial1.available() > 0) {
-          safeUpdate();
-        }
-        k_yield();
-#endif
       }
       delay(100);
       resetY();
