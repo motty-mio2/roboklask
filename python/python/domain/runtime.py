@@ -1,24 +1,20 @@
 import collections
-import os
 from pathlib import Path
 
 import numpy as np
 import onnxruntime as ort
 
+from python.domain.config import Config
 from python.domain.model.robot_xy import RobotXY
 
 
 class Runtime:
     MAX_LEN = 3
 
-    def __init__(self, use_onnx: bool = True) -> None:
+    def __init__(self, use_onnx: bool = True, model_path: Path | None = None) -> None:
         self.use_onnx = use_onnx
         if self.use_onnx:
-            self.model_path = (
-                Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share"))
-                / "roboklask"
-                / "klask_ppo_model.onnx"
-            )
+            self.model_path = model_path or Config().model_path
             self.session = ort.InferenceSession(self.model_path)  # type: ignore
 
         self.past_striker: collections.deque[RobotXY] = collections.deque(
