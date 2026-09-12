@@ -1,5 +1,7 @@
 # 🏓 Roboklask: AI駆動型 Klask 自律対戦ロボット
 
+[English](./README.md) | 日本語
+
 [![Python 3.13+](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![Zephyr RTOS](https://img.shields.io/badge/OS-Zephyr_RTOS-orange.svg)](https://zephyrproject.org/)
 [![Hardware](https://img.shields.io/badge/Hardware-Arduino_UNO_Q-red.svg)](https://store.arduino.cc/)
@@ -92,13 +94,21 @@ mise run lint     # C++ 静的解析 ＆ Python の厳密な型チェック
 
 ---
 
-## 📁 ディレクトリ構造
+## 📁 ディレクトリ構成
 
-* **`sketch/`**: Arduino UNO Q および Arduino UNO R4 Minima 向けのファームウェア。
-* **`python/`**: 推論、トラッキング、Web UI を含む Python アプリケーション。
-* **`docs/`**: 詳細な技術ドキュメント。
+- **[`sketch/`](./sketch/)**: Arduino UNO R4 (UNO Q / Minima) 向けの C++ ファームウェア（2軸ステッピングモーター制御および通信ブリッジ）。
+- **[`python/`](./python/)**: 推論、トラッキング、Web UI を含む Python アプリケーション。
+- **[`hardware/`](./hardware/)**: 3Dプリント用メカ部品およびマウンタ設計。
+  - **[ハードウェア＆3Dプリントガイド](./hardware/HardWare_ja.md)** ([English](./hardware/HardWare.md))
+- **[`docs/`](./docs/)**: 詳細な技術ドキュメント。
 
-## 関連リポジトリ
+## 📚 ドキュメント
+
+- **[ハードウェア＆3Dプリントガイド](./hardware/HardWare_ja.md)**: STLファイル一覧、BambuLab P1S 推奨印刷設定、各部品の詳細。
+- **[Python パッケージドキュメント](./python/README.md)**: ビジョン追跡およびモーション制御アプリのセットアップと使い方。
+- **[技術解説 ＆ 最適化詳細](./docs/optimizations_ja.md)**: RTOSポーリング最適化、シリアルバッファ遅延対策、キネマティクス計算などの解説。
+
+## 🔗 関連リポジトリ
 
 - [Klask_PCB](https://github.com/motty-mio2/Klask_PCB)：独自設計のArduino UNO Q用Shield
 - [Klask Vision](https://github.com/motty-mio2/Klask_vision)：Klask用画像認識モデルの推論パッケージ

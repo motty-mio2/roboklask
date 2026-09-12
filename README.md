@@ -1,5 +1,7 @@
 # 🏓 Roboklask: Autonomous AI-Powered Klask-Playing Robot
 
+English | [日本語](./README_ja.md)
+
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![Zephyr RTOS](https://img.shields.io/badge/OS-Zephyr_RTOS-orange.svg)](https://zephyrproject.org/)
 [![Hardware](https://img.shields.io/badge/Hardware-Arduino_UNO_R4-red.svg)](https://store.arduino.cc/)
@@ -52,7 +54,11 @@ graph TD
 
 ---
 
-## 💻 Quickstart
+## 💻 Quickstart (Arduino App Lab)
+
+Simply open this project in Arduino App Lab!
+
+## 🛠️ Alternative Setup (For Debugging / Development)
 
 This project uses [mise](https://mise.jdx.dev/) as a polyglot task runner and environment manager.
 
@@ -89,6 +95,21 @@ mise run lint     # Strict C++ static analysis and python type checks
 
 ## 📁 Repository Structure
 
-* **`sketch/`**: C++ firmware targeting Arduino UNO R4 WiFi (UNO Q) and Arduino UNO R4 Minima.
-* **`python/`**: Python 3.13 companion app (ONNX inference, HSV tracking, Web UI).
-* **`docs/`**: Technical engineering documentation.
+- **[`sketch/`](./sketch/)** — Arduino C++ firmware targeting Arduino UNO R4 (UNO Q / Minima) for dual stepper motor control and sensor integration.
+- **[`python/`](./python/)** — Python companion app (Python 3.13) for vision tracking (OAK-D / RealSense), motion policy inference (PPO / Ball tracking), and web UI.
+- **[`hardware/`](./hardware/)** — 3D printable mechanical parts and mount designs.
+  - **[Hardware & 3D Printing Guide](./hardware/HardWare.md)** ([日本語版](./hardware/HardWare_ja.md))
+- **[`docs/`](./docs/)** — Technical engineering documentation and RTOS optimization details.
+
+## 📚 Documentation
+
+- **[Hardware & 3D Printing Guide](./hardware/HardWare.md)**: STL files, recommended BambuLab P1S print settings, and parts list.
+- **[Python Package Documentation](./python/README.md)**: Setup and usage for the vision tracking and motion control application.
+- **[Technical Optimizations & Engineering Details](./docs/optimizations.md)**: RTOS optimizations, serial-buffer flushing, and kinematics math.
+
+## 🔗 Related Repositories
+
+- [Klask_PCB](https://github.com/motty-mio2/Klask_PCB): Custom designed shield for Arduino UNO Q
+- [Klask Vision](https://github.com/motty-mio2/Klask_vision): Computer vision inference package for Klask
+  - [Klask Vision Learning](https://github.com/motty-mio2/Klask_vision_learning): Training pipeline for Klask vision models
+- [Klask RL](https://github.com/motty-mio2/Klask_RL): Reinforcement learning agent for Klask
