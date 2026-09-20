@@ -1,6 +1,6 @@
 ---
 name: arduino-uno-q
-description: Arduino UNO Q (UNO R4 / Minima) ボード開発、MPU-MCU間の通信、App Lab、App Bricks、および Bridge API についての知識と手順を提供します。
+description: Arduino UNO Q ボード開発、MPU-MCU間の通信、App Lab、App Bricks、および Bridge API についての知識と手順を提供します。
 ---
 
 # SKILL.md: Arduino UNO Q
@@ -10,19 +10,15 @@ description: Arduino UNO Q (UNO R4 / Minima) ボード開発、MPU-MCU間の通�
 
 ---
 
-## 1. 接続方式の選択 (UNO Q vs Minima)
-本プロジェクトでは、対象となるターゲットボードに応じて通信および運動制御ポリシーのレイヤーが異なります。
+## 1. 通信方式
+本プロジェクトでは、Arduino UNO Q のデュアルアーキテクチャを活用し、Linux MPU とリアルタイム MCU 間で通信を行います。
 
-* **UNO R4 (UNO Q / Zephyr RTOS)**:
+* **Arduino UNO Q (Zephyr RTOS)**:
   * **通信方式**: `Bridge` 通信 (MessagePack RPC)
-  * **設定**: `KLASK_OUTPUT_TYPE=bridge`
   * **特徴**: Zephyr RTOS カーネル上で動作し、LEDマトリクス表示、および Bridge API による非同期・同期RPCを利用します。
-* **Minima (Arduino UNO R4 Minima)**:
-  * **通信方式**: UART シリアル通信 (115200 baud)
-  * **設定**: `KLASK_OUTPUT_TYPE=uart`
-  * **特徴**: リアルタイム処理ループで UART の特定ヘッダー (`0xAA`) に基づくバイナリパケットを直接処理します。
 
 ---
+
 
 ## 2. MCU 側 (C++ スケッチ) の Bridge 実装手順
 

@@ -39,12 +39,5 @@ class Config(BaseSettings):
     model_path: Path = get_default_model_path()
 
 
-class SerialConfig(Config):
-    """Configuration settings specific to the SerialDriver."""
-
-    serial_port: str = "/dev/ttyUSB0"
-    baudrate: int = 115200
-
-
 class ZenohConfig(Config):
     zenoh_peers: str = "tcp/"

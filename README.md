@@ -4,7 +4,8 @@ English | [日本語](./README_ja.md)
 
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![Zephyr RTOS](https://img.shields.io/badge/OS-Zephyr_RTOS-orange.svg)](https://zephyrproject.org/)
-[![Hardware](https://img.shields.io/badge/Hardware-Arduino_UNO_R4-red.svg)](https://store.arduino.cc/)
+[![Hardware](https://img.shields.io/badge/Hardware-Arduino_UNO_Q-red.svg)](https://store.arduino.cc/)
+
 [![Package Manager](https://img.shields.io/badge/package_manager-uv-green.svg)](https://github.com/astral-sh/uv)
 [![Code Style](https://img.shields.io/badge/code%20style-ruff-black.svg)](https://github.com/astral-sh/ruff)
 
@@ -22,7 +23,7 @@ Roboklask is an autonomous, real-time robotics system designed to play **Klask**
 ### The Hardware Setup
 * **Structure**: Custom 2D H-bot XY Gantry.
 * **Actuators**: High-torque NEMA 17 Stepper Motors driven by DRV8825 motor drivers (configured at 1/8 microstepping).
-* **Brain**: Arduino UNO R4 WiFi running Zephyr RTOS.
+* **Brain**: Arduino UNO Q running Zephyr RTOS.
 * **Vision**: OAK-D (DepthAI) or Intel RealSense stereo cameras capturing the table dynamics at 30+ FPS.
 
 ---
@@ -44,10 +45,11 @@ graph TD
     A[Camera: OAK-D / RealSense] -->|Raw Video Frames| B(Python Vision Tracker)
     B -->|HSV Coordinate Extraction| C(Motion Policy: Ball Tracking / PPO Model)
     C -->|Target Coords: X,Y | D(McuConnection / BridgeDriver)
-    D -->|MessagePack-RPC @ 30Hz| E[Arduino UNO R4 WiFi / Zephyr RTOS]
+    D -->|MessagePack-RPC @ 30Hz| E[Arduino UNO Q / Zephyr RTOS]
     E -->|High Frequency step pulses| F[Motors: NEMA 17 / DRV8825]
     E -->|Encoder Feedback @ 30Hz| D
 ```
+
 
 > [!TIP]
 > For a detailed look at our RTOS optimizations, serial-buffer flushing, and kinematics math, see the **[Technical Optimizations & Engineering Details](./docs/optimizations.md)** document.
@@ -95,7 +97,7 @@ mise run lint     # Strict C++ static analysis and python type checks
 
 ## 📁 Repository Structure
 
-- **[`sketch/`](./sketch/)** — Arduino C++ firmware targeting Arduino UNO R4 (UNO Q / Minima) for dual stepper motor control and sensor integration.
+- **[`sketch/`](./sketch/)** — Arduino C++ firmware targeting Arduino UNO Q for dual stepper motor control and sensor integration.
 - **[`python/`](./python/)** — Python companion app (Python 3.13) for vision tracking (OAK-D / RealSense), motion policy inference (PPO / Ball tracking), and web UI.
 - **[`hardware/`](./hardware/)** — 3D printable mechanical parts and mount designs.
   - **[Hardware & 3D Printing Guide](./hardware/HardWare.md)** ([日本語版](./hardware/HardWare_ja.md))
