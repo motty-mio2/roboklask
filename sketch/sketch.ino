@@ -1,21 +1,16 @@
 #include <AccelStepper.h>
-#if defined(ARDUINO_UNO_Q)
 #include <Arduino_RouterBridge.h>
 #include <zephyr/kernel.h>
 
+#include <vector>
+
 #include "matrix.h"
+#include "pinout.h"
+#include "xycontrol.hpp"
+
 Arduino_LED_Matrix matrix;
 K_MUTEX_DEFINE(head_mutex);
 K_MUTEX_DEFINE(ball_mutex);
-#elif defined(ARDUINO_MINIMA)
-#include "serial_bridge.hpp"
-SerialBridge bridge(Serial, 115200);
-#endif
-
-#include <vector>
-
-#include "pinout.h"
-#include "xycontrol.hpp"
 
 XYControl xyControl(MX_STEP, MX_DIR, MY_STEP, MY_DIR, SW_X, SW_Y);
 
@@ -51,12 +46,10 @@ void setup() {
 
   blinkLED(1); // 1回点滅: setup開始成功 (消灯で終了)
 
-#if defined(ARDUINO_UNO_Q)
   // LED Matrixの初期化のみ最初に行う
   matrix.begin();
   matrix.setGrayscaleBits(1);
   matrix.clear();
-#endif
 
   pinMode(SW_X, INPUT_PULLUP);
   pinMode(SW_Y, INPUT_PULLUP);
@@ -91,7 +84,6 @@ void setup() {
   blinkLED(3); // 3回点滅: Homing&Test完了、通信初期化直前
 
   // 3. モーターのすべての初期位置合わせが完了した後に、通信を開始する
-#if defined(ARDUINO_UNO_Q)
   Bridge.begin();
 
   Bridge.provide("py2mcu", [](std::vector<float> data) {
@@ -114,9 +106,6 @@ void setup() {
   });
 
   Monitor.begin(); // クラッシュ回避のためコメントアウト
-#elif defined(ARDUINO_MINIMA)
-  bridge.begin();
-#endif
 
   blinkLED(5); // 5回点滅: 通信初期化完了、setup正常終了
 
@@ -131,9 +120,7 @@ Position local_new_head_pos;
 Position local_ball_pos;
 
 void loop() {
-#if defined(ARDUINO_UNO_Q)
   unsigned long last_yield_ms = 0;
-#endif
 
   while (true) {
     // 1. モーターのステップを更新（最優先・全力でポーリング）
@@ -144,7 +131,6 @@ void loop() {
     // 2.
     // 33msに満たない場合は、通信受信とyieldのみ実行して即ループの先頭に戻る(continue)
     if (current_time - last_update_ms < CYCLE_ms) {
-#if defined(ARDUINO_UNO_Q)
       if (Serial1.available() > 0) {
         safeUpdate();
       }
@@ -152,7 +138,6 @@ void loop() {
         last_yield_ms = current_time;
         k_yield();
       }
-#endif
       continue;
     }
     last_update_ms = current_time;
@@ -160,7 +145,6 @@ void loop() {
     // 3. 33ms経過時のメイン制御処理
     xyControl.getCurrentXY(head_pos);
 
-#if defined(ARDUINO_UNO_Q)
     Bridge.notify("mcu2py", head_pos.x, head_pos.y);
 
     // 割り込みスレッドで更新されたターゲット座標を安全にコピーして、モーター制御に反映する
@@ -174,14 +158,5 @@ void loop() {
     local_ball_pos = ball_pos;
     k_mutex_unlock(&ball_mutex);
     xy(matrix, local_ball_pos.x, local_ball_pos.y);
-#elif defined(ARDUINO_MINIMA)
-    // Minima専用処理
-    if (bridge.receive(new_head_pos)) {
-      static bool ledState = false;
-      ledState = !ledState;
-    }
-    bridge.sendPosition(head_pos);
-    xyControl.move(new_head_pos);
-#endif
   }
 }

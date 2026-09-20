@@ -7,7 +7,7 @@
 ## 1. Zephyr RTOS 上での極限の超低遅延・高頻度ステップパルス生成
 
 ### 課題
-標準の Arduino 環境は、単一スレッドで `loop()` をシーケンシャルにループ実行します。しかし、Zephyr RTOS などの OS 上で動作する Arduino コア（Arduino UNO R4 WiFi など）では、`loop()` が `return` して再実行されるまでの間に、システムスレッドの再スケジューリング、シリアルポートのポーリング、その他のハードウェア管理など、**200µs〜1ms 程度のオーバーヘッド**が発生します。
+標準の Arduino 環境は、単一スレッドで `loop()` をシーケンシャルにループ実行します。しかし、Zephyr RTOS などの OS 上で動作する Arduino コア（Arduino UNO Q など）では、`loop()` が `return` して再実行されるまでの間に、システムスレッドの再スケジューリング、シリアルポートのポーリング、その他のハードウェア管理など、**200µs〜1ms 程度のオーバーヘッド**が発生します。
 
 ステップ更新ライブラリ `AccelStepper` は、ポーリング制御モデル（`stepper.run()`）を採用しているため、目標のステップ出力周波数よりも大幅に高い頻度でポーリングする必要があります。1/8ステップ解像度で最大速度 **16,000 steps/sec** を出すためには、最低でも **30kHz 以上**の頻度で `run()` を呼ぶ必要があります。しかし、コアのオーバーヘッドのせいで `loop()` の周回が 1kHz 程度に制限されると、モーター速度は 2,000 steps/sec 未満（這うような遅さ）に頭打ちになってしまいます。
 
@@ -26,7 +26,6 @@ void loop() {
 
     // 2. 33msに満たない場合は、即座に continue してループ先頭に戻る
     if (current_time - last_update_ms < CYCLE_ms) {
-      #if defined(ARDUINO_UNO_Q)
       if (Serial1.available() > 0) {
         safeUpdate();
       }
@@ -35,10 +34,10 @@ void loop() {
         last_yield_ms = current_time;
         k_yield();
       }
-      #endif
       continue;
     }
     last_update_ms = current_time;
+
 
     // 3. 33ms 周期のメイン制御処理を実行
     ...

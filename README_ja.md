@@ -96,7 +96,7 @@ mise run lint     # C++ 静的解析 ＆ Python の厳密な型チェック
 
 ## 📁 ディレクトリ構成
 
-- **[`sketch/`](./sketch/)**: Arduino UNO R4 (UNO Q / Minima) 向けの C++ ファームウェア（2軸ステッピングモーター制御および通信ブリッジ）。
+- **[`sketch/`](./sketch/)**: Arduino UNO Q 向けの C++ ファームウェア（2軸ステッピングモーター制御および通信ブリッジ）。
 - **[`python/`](./python/)**: 推論、トラッキング、Web UI を含む Python アプリケーション。
 - **[`hardware/`](./hardware/)**: 3Dプリント用メカ部品およびマウンタ設計。
   - **[ハードウェア＆3Dプリントガイド](./hardware/HardWare_ja.md)** ([English](./hardware/HardWare.md))

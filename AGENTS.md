@@ -6,10 +6,10 @@
 
 This is a monorepo for an Arduino robotics project (Klask-playing robot) with two components:
 
-- **`sketch/`** — Arduino C++ firmware targeting `arduino:zephyr:unoq` (Arduino UNO R4) or `arduino:samd:minima` (Arduino UNO R4 Minima).
-  - For **UNO R4 (UNO Q / Zephyr RTOS)**: Uses the Zephyr RTOS kernel, LED matrix display, and `RouterBridge`. It receives target coordinates via `Bridge.provide("xy", ...)` and reports encoder feedback coordinates to the Python app via `Bridge.call("report_xy", ...)` at 20ms intervals.
-  - For **Minima**: Uses raw UART serial connection at 115200 baud (`serial_bridge.hpp`) to read `0xAA` header target packets and write `0xAA` feedback position packets.
-- **`python/`** — Python 3.13+ companion app using `arduino-app-bricks` framework and ONNX Runtime for inference. Communicates with the sketch via either Arduino App Bridge RPCs or raw UART serial. Managed with `uv`.
+- **`sketch/`** — Arduino C++ firmware targeting `arduino:zephyr:unoq` (Arduino UNO Q).
+  - Uses the Zephyr RTOS kernel, LED matrix display, and `RouterBridge`. It receives target coordinates via `Bridge.provide("py2mcu", ...)` and reports striker coordinates to the Python app via `Bridge.notify("mcu2py", ...)` at 33ms intervals.
+- **`python/`** — Python 3.13+ companion app using `arduino-app-bricks` framework and ONNX Runtime for inference. Communicates with the sketch via Arduino App Bridge RPCs. Managed with `uv`.
+
 
 ### Python Package Structure
 

@@ -7,7 +7,7 @@ This document covers the deep technical optimizations implemented in the Robokla
 ## 1. High-Frequency Step Generation (Zephyr RTOS)
 
 ### The Challenge
-Standard Arduino environments run `loop()` sequentially. In RTOS-based cores (like Zephyr RTOS on Arduino UNO R4), returning from `loop()` triggers system-level thread rescheduling, serial polling, and hardware events. This introduces a background overhead of **200µs to 1ms** per iteration.
+Standard Arduino environments run `loop()` sequentially. In RTOS-based cores (like Zephyr RTOS on Arduino UNO Q), returning from `loop()` triggers system-level thread rescheduling, serial polling, and hardware events. This introduces a background overhead of **200µs to 1ms** per iteration.
 
 Because `AccelStepper` relies on a polling architecture (`stepper.run()`), it must be called at a frequency higher than the required step pulse frequency. With a target operational speed of **16,000 steps/second** (at 1/8 microstepping), the minimum polling frequency must exceed **30kHz**. Polling inside a standard `loop()` limited to 1kHz due to core overhead restricts the motor speed to a crawl (under 2,000 steps/sec).
 
@@ -26,7 +26,6 @@ void loop() {
 
     // 2. Manage 33ms control cycles with guard clauses
     if (current_time - last_update_ms < CYCLE_ms) {
-      #if defined(ARDUINO_UNO_Q)
       if (Serial1.available() > 0) {
         safeUpdate();
       }
@@ -35,10 +34,10 @@ void loop() {
         last_yield_ms = current_time;
         k_yield();
       }
-      #endif
       continue;
     }
     last_update_ms = current_time;
+
 
     // 3. Execute 33ms periodic logic (target coordinates, matrix rendering)
     ...

@@ -14,15 +14,8 @@ constexpr uint8_t VEN = 10;
 constexpr uint8_t SW_A = 12;
 constexpr uint8_t SW_B = 13;
 
-// Uno R4
-#if defined(ARDUINO_MINIMA)
-#pragma message "\n >> ARDUINO_MINIMA is defined."
-constexpr uint8_t SW_X = 19;
-constexpr uint8_t SW_Y = 18;
-#elif defined(ARDUINO_UNO_Q)
-#pragma message "\n >> ARDUINO_UNO_Q is defined."
+// Arduino UNO Q
 constexpr uint8_t SW_X = 21;
 constexpr uint8_t SW_Y = 20;
-#endif
 
 #endif // PINOUT_H

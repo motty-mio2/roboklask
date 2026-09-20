@@ -12,9 +12,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run roboklask Python runtime")
     parser.add_argument(
         "--driver",
-        choices=["serial", "bridge"],
+        choices=["bridge"],
         default="bridge",
-        help="Communication driver: serial or bridge",
+        help="Communication driver: bridge (Arduino UNO Q)",
     )
     parser.add_argument(
         "--transmitter",
@@ -47,17 +47,9 @@ def main() -> None:
     sh = Shared()
     use_onnx = not args.no_onnx
 
-    driver: Any
-    if args.driver == "serial":
-        from python.infra.driver.serial_driver import SerialDriver
+    from python.infra.driver.bridge_driver import BridgeDriver
 
-        driver = SerialDriver(shared=sh, use_onnx=use_onnx)
-    elif args.driver == "bridge":
-        from python.infra.driver.bridge_driver import BridgeDriver
-
-        driver = BridgeDriver(shared=sh, use_onnx=use_onnx)
-    else:
-        raise ValueError(f"Unknown driver: {args.driver}")
+    driver = BridgeDriver(shared=sh, use_onnx=use_onnx)
 
     transmitter: Any
     if args.transmitter == "zenoh":
