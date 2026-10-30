@@ -62,15 +62,9 @@ void setup() {
   pinMode(SW_Y, INPUT_PULLUP);
 
   pinMode(nEN, OUTPUT);
-  digitalWrite(nEN, HIGH);
+  digitalWrite(nEN, LOW); // TMC2209: LOW = Driver Enabled
 
-  // M0, M1, M2ピンの出力を明示的に設定
-  pinMode(M0, OUTPUT);
-  digitalWrite(M0, setM0);
-  pinMode(M1, OUTPUT);
-  digitalWrite(M1, setM1);
-  pinMode(M2, OUTPUT);
-  digitalWrite(M2, setM2);
+  pinMode(V_SENSE, INPUT);
 
   blinkLED(2); // 2回点滅: ピン初期設定完了、Homing直前
 

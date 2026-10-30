@@ -1,28 +1,30 @@
 #ifndef PINOUT_H
 #define PINOUT_H
 
-constexpr uint8_t M0 = 0;
-constexpr uint8_t M1 = 1;
-constexpr uint8_t M2 = 2;
+#include <stdint.h>
+
+// 12V Power Sense (monitoring pin connected via voltage divider, net A0)
+constexpr uint8_t V_SENSE = 2;
+
+// Motor Driver Enable (active LOW for TMC2209)
 constexpr uint8_t nEN = 3;
-constexpr uint8_t MY_STEP = 4;
-constexpr uint8_t MY_DIR = 5;
-constexpr uint8_t MX_STEP = 8;
-constexpr uint8_t MX_DIR = 9;
-constexpr uint8_t VEN = 10;
 
-constexpr uint8_t SW_A = 12;
-constexpr uint8_t SW_B = 13;
+// TMC2209 UART Communication
+constexpr uint8_t TMC_TX = 4; // MCU2TMC (connected via 1k resistor)
+constexpr uint8_t TMC_RX = 5; // TMC2MCU (connected directly)
 
-// Uno R4
-#if defined(ARDUINO_MINIMA)
-#pragma message "\n >> ARDUINO_MINIMA is defined."
-constexpr uint8_t SW_X = 19;
-constexpr uint8_t SW_Y = 18;
-#elif defined(ARDUINO_UNO_Q)
-#pragma message "\n >> ARDUINO_UNO_Q is defined."
-constexpr uint8_t SW_X = 21;
-constexpr uint8_t SW_Y = 20;
-#endif
+// Stepper Motor Pins (Y Axis - TMC2209 A3)
+constexpr uint8_t MY_STEP = 6;
+constexpr uint8_t MY_DIR = 7;
+constexpr uint8_t DIAG_Y = 8;
+
+// Stepper Motor Pins (X Axis - TMC2209 A2)
+constexpr uint8_t MX_STEP = 9;
+constexpr uint8_t MX_DIR = 10;
+constexpr uint8_t DIAG_X = 11;
+
+// Limit Switches (active LOW with internal pullup)
+constexpr uint8_t SW_Y = 12;
+constexpr uint8_t SW_X = 13;
 
 #endif // PINOUT_H

@@ -1,10 +1,6 @@
 #ifndef MOTOR_CONFIG_H
 #define MOTOR_CONFIG_H_
 
-constexpr int setM0 = true;
-constexpr int setM1 = true;
-constexpr int setM2 = false;
-
 // 1回転あたりのベースステップ数
 constexpr int STEP = 400;
 constexpr int resolution = 8;
