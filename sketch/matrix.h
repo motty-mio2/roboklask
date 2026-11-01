@@ -41,8 +41,8 @@ const uint8_t *generate_matrix(const float &x, const float &y) {
 
 // --- Bridge providers --------------------------------------------------------
 
-void xy(Arduino_LED_Matrix &matrix, const float &x, const float &y) {
-  matrix.draw(generate_matrix(x, y));
+void xy(Arduino_LED_Matrix &led_matrix, const float &x, const float &y) {
+  led_matrix.draw(generate_matrix(x, y));
 }
 
 #endif // MATRIX_H_
