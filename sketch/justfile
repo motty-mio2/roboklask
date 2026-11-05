@@ -23,3 +23,18 @@ cppcheck:
 build profile='default':
     arduino-cli compile -m {{profile}} .
 
+# 書き込み（ポート自動検出。-m だけでは remoteocd が失敗するため -p を必ず渡す）
+upload profile='default' port='':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    port="{{port}}"
+    if [ -z "$port" ]; then
+        port=$(arduino-cli board list --format json | python3 -c 'import json,sys; print(next(p["port"]["address"] for p in json.load(sys.stdin)["detected_ports"] if p["port"]["protocol"] == "serial"))')
+    fi
+    echo "upload -> $port"
+    arduino-cli upload -m {{profile}} -p "$port" .
+
+# シリアルモニタ（Ctrl-C で終了）
+monitor port='/dev/ttyACM0' baud='115200':
+    arduino-cli monitor -p {{port}} -c baudrate={{baud}} --timestamp
+
